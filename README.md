@@ -133,3 +133,4 @@ frontend/
     store/       Zustand (auth)
     api/         clients axios
 ```
+
