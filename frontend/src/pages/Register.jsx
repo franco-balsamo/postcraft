@@ -124,7 +124,7 @@ export default function Register() {
               value={form.password}
               onChange={handleChange('password')}
               error={errors.password}
-              placeholder="Mín. 8 caracteres, mayúscula y número"
+              placeholder="Mín. 8 caracteres, mayúscula y número."
               autoComplete="new-password"
             />
 
