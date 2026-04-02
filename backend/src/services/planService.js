@@ -23,7 +23,8 @@ export async function getPlanLimit(plan) {
   } catch {
     // fall through to fallback
   }
-  return FALLBACK_LIMITS[plan] ?? FALLBACK_LIMITS.free;
+  // use `in` check so null (unlimited) is preserved and not replaced with free limit
+  return plan in FALLBACK_LIMITS ? FALLBACK_LIMITS[plan] : FALLBACK_LIMITS.free;
 }
 
 /**

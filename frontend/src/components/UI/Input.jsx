@@ -7,16 +7,20 @@ export default function Input({
   className = '',
   inputClassName = '',
   type = 'text',
+  id,
   ...props
 }) {
+  const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined)
+
   return (
     <div className={clsx('flex flex-col gap-1.5', className)}>
       {label && (
-        <label className="text-sm font-medium text-slate-300">
+        <label htmlFor={inputId} className="text-sm font-medium text-slate-300">
           {label}
         </label>
       )}
       <input
+        id={inputId}
         type={type}
         className={clsx(
           'w-full bg-brand-navy border rounded-lg px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500',
@@ -39,15 +43,18 @@ export default function Input({
   )
 }
 
-export function Textarea({ label, error, hint, className = '', inputClassName = '', rows = 4, ...props }) {
+export function Textarea({ label, error, hint, className = '', inputClassName = '', rows = 4, id, ...props }) {
+  const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined)
+
   return (
     <div className={clsx('flex flex-col gap-1.5', className)}>
       {label && (
-        <label className="text-sm font-medium text-slate-300">
+        <label htmlFor={inputId} className="text-sm font-medium text-slate-300">
           {label}
         </label>
       )}
       <textarea
+        id={inputId}
         rows={rows}
         className={clsx(
           'w-full bg-brand-navy border rounded-lg px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 resize-none',
