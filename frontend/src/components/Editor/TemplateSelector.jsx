@@ -27,10 +27,10 @@ export default function TemplateSelector() {
               key={t.value}
               onClick={() => setTemplate(t.value, templateName)}
               className={clsx(
-                'flex flex-col items-center gap-1.5 p-3 rounded-lg border text-sm font-medium transition-all duration-200',
+                'flex flex-col items-center gap-1.5 p-3 rounded-2xl border text-sm font-medium transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
                 templateType === t.value
                   ? 'border-brand-green bg-brand-green/10 text-brand-green'
-                  : 'border-brand-border bg-brand-surface text-slate-400 hover:border-slate-500 hover:text-slate-200'
+                  : 'border-white/10 bg-white/5 text-slate-400 hover:border-slate-500 hover:text-slate-200'
               )}
             >
               <span className="text-xl">{t.icon}</span>
@@ -52,10 +52,10 @@ export default function TemplateSelector() {
               key={t.value}
               onClick={() => setTemplate(templateType, t.value)}
               className={clsx(
-                'w-full flex items-center gap-3 p-3 rounded-lg border text-sm font-medium transition-all duration-200',
+                'w-full flex items-center gap-3 p-3 rounded-2xl border text-sm font-medium transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
                 templateName === t.value
                   ? 'border-brand-green bg-brand-green/10 text-brand-green'
-                  : 'border-brand-border bg-brand-surface text-slate-400 hover:border-slate-500 hover:text-slate-200'
+                  : 'border-white/10 bg-white/5 text-slate-400 hover:border-slate-500 hover:text-slate-200'
               )}
             >
               <span className="text-xl">{t.icon}</span>
@@ -72,7 +72,7 @@ export default function TemplateSelector() {
       </div>
 
       {/* Preview label */}
-      <div className="pt-2 border-t border-brand-border">
+      <div className="pt-2 border-t border-white/5">
         <p className="text-xs text-slate-500">
           Plantilla activa:{' '}
           <span className="text-brand-green font-medium capitalize">

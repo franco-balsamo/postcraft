@@ -26,12 +26,14 @@ function planFeatures(plan) {
 
 function Section({ title, desc, children }) {
   return (
-    <div className="bg-brand-surface border border-brand-border rounded-xl overflow-hidden">
-      <div className="p-5 border-b border-brand-border">
-        <h3 className="font-semibold text-white">{title}</h3>
-        {desc && <p className="text-sm text-slate-500 mt-0.5">{desc}</p>}
+    <div className="rounded-3xl bg-white/5 border border-white/10 p-1.5">
+      <div className="rounded-[1.35rem] bg-brand-surface/80 backdrop-blur-xl overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
+        <div className="p-5 border-b border-white/5">
+          <h3 className="font-semibold text-white">{title}</h3>
+          {desc && <p className="text-sm text-slate-500 mt-0.5">{desc}</p>}
+        </div>
+        <div className="p-5">{children}</div>
       </div>
-      <div className="p-5">{children}</div>
     </div>
   )
 }
@@ -127,7 +129,7 @@ export default function Settings() {
       >
         <div className="space-y-3">
           {/* Instagram status */}
-          <div className="flex items-center justify-between p-3 rounded-lg bg-brand-dark border border-brand-border">
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-black/20 border border-white/10">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
                 <span className="text-white text-sm">📷</span>
@@ -145,7 +147,7 @@ export default function Settings() {
           </div>
 
           {/* Facebook status */}
-          <div className="flex items-center justify-between p-3 rounded-lg bg-brand-dark border border-brand-border">
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-black/20 border border-white/10">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
                 <span className="text-white text-sm">👤</span>
@@ -208,10 +210,10 @@ export default function Settings() {
             return (
               <div
                 key={plan.name}
-                className={`relative rounded-xl border p-4 ${
+                className={`relative rounded-2xl border p-4 ${
                   isCurrent
                     ? `${colorBorder} bg-brand-dark`
-                    : 'border-brand-border bg-brand-dark/50'
+                    : 'border-white/10 bg-black/10'
                 } transition-all`}
               >
                 {display.popular && (
@@ -242,7 +244,7 @@ export default function Settings() {
                 </ul>
 
                 {isCurrent ? (
-                  <div className="text-center text-xs text-slate-500 py-2 border border-brand-border rounded-lg">
+                  <div className="text-center text-xs text-slate-500 py-2 border border-white/10 rounded-full">
                     Plan actual
                   </div>
                 ) : plan.name === 'free' ? (
@@ -272,7 +274,7 @@ export default function Settings() {
         </div>
 
         {/* Current usage */}
-        <div className="mt-4 p-3 rounded-lg bg-brand-dark border border-brand-border flex items-center justify-between">
+        <div className="mt-4 p-3 rounded-2xl bg-black/20 border border-white/10 flex items-center justify-between">
           <div>
             <p className="text-xs text-slate-500">Uso mensual</p>
             <p className="text-sm font-medium text-white">
@@ -302,13 +304,13 @@ export default function Settings() {
       >
         <form onSubmit={handleProfileSubmit} className="space-y-4">
           {profileSuccess && (
-            <div className="p-3 rounded-lg bg-brand-green/10 border border-brand-green/30 text-brand-green text-sm">
+            <div className="p-3 rounded-xl bg-brand-green/10 border border-brand-green/30 text-brand-green text-sm">
               ¡Perfil actualizado correctamente!
             </div>
           )}
 
           {profileMutation.isError && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
               {profileMutation.error?.response?.data?.message || 'Error al actualizar el perfil.'}
             </div>
           )}
@@ -330,7 +332,7 @@ export default function Settings() {
             />
           </div>
 
-          <div className="pt-2 border-t border-brand-border">
+          <div className="pt-2 border-t border-white/5">
             <p className="text-xs text-slate-500 mb-3">Cambiar contraseña (opcional)</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input

@@ -78,7 +78,7 @@ export default function CanvasPreview() {
 
       {/* Preview container */}
       <div
-        className="relative overflow-hidden rounded-xl border border-brand-border shadow-2xl"
+        className="relative overflow-hidden rounded-2xl border border-white/10 shadow-2xl"
         style={{ width: PREVIEW_WIDTH, height: previewHeight }}
       >
         {/* Checkerboard bg hint */}
@@ -112,25 +112,22 @@ export default function CanvasPreview() {
       <button
         onClick={handleDownload}
         disabled={downloading}
-        className="flex items-center gap-2 px-5 py-2.5 bg-brand-green text-brand-dark font-semibold text-sm rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-brand-green/20"
+        className="group flex items-center gap-3 pl-5 pr-1.5 py-1.5 bg-brand-green text-brand-dark font-semibold text-sm rounded-full transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:opacity-90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-brand-green/20"
       >
-        {downloading ? (
-          <>
+        <span>{downloading ? 'Exportando…' : 'Descargar PNG'}</span>
+        <span className="w-8 h-8 rounded-full bg-brand-dark/10 flex items-center justify-center flex-shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-y-0.5">
+          {downloading ? (
             <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            Exportando...
-          </>
-        ) : (
-          <>
+          ) : (
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            Descargar PNG
-          </>
-        )}
+          )}
+        </span>
       </button>
 
       {/* Dimensions hint */}

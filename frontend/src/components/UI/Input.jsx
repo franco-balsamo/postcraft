@@ -23,12 +23,12 @@ export default function Input({
         id={inputId}
         type={type}
         className={clsx(
-          'w-full bg-brand-navy border rounded-lg px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500',
+          'w-full bg-black/20 border rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500',
           'focus:outline-none focus:ring-2 focus:ring-brand-green/40 focus:border-brand-green',
-          'transition-all duration-200',
+          'transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
           error
             ? 'border-red-500/50 focus:ring-red-500/30'
-            : 'border-brand-border hover:border-slate-600',
+            : 'border-white/10 hover:border-white/20',
           inputClassName
         )}
         {...props}
@@ -57,12 +57,12 @@ export function Textarea({ label, error, hint, className = '', inputClassName = 
         id={inputId}
         rows={rows}
         className={clsx(
-          'w-full bg-brand-navy border rounded-lg px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 resize-none',
+          'w-full bg-black/20 border rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 resize-none',
           'focus:outline-none focus:ring-2 focus:ring-brand-green/40 focus:border-brand-green',
-          'transition-all duration-200',
+          'transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
           error
             ? 'border-red-500/50 focus:ring-red-500/30'
-            : 'border-brand-border hover:border-slate-600',
+            : 'border-white/10 hover:border-white/20',
           inputClassName
         )}
         {...props}

@@ -60,10 +60,10 @@ export default function FieldsPanel() {
                 <button
                   key={b}
                   onClick={() => setField('badge', b)}
-                  className={`px-3 py-1 rounded-md text-xs font-semibold border transition-all ${
+                  className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
                     fields.badge === b
                       ? 'border-brand-green bg-brand-green/10 text-brand-green'
-                      : 'border-brand-border text-slate-400 hover:border-slate-500'
+                      : 'border-white/10 text-slate-400 hover:border-white/20'
                   }`}
                 >
                   {b}
@@ -86,7 +86,7 @@ export default function FieldsPanel() {
 
             {(fields.specs || []).map((spec, i) => (
               <div key={i} className="flex items-center gap-2">
-                <div className="flex-1 flex items-center gap-2 bg-brand-navy border border-brand-border rounded-lg px-3 py-2">
+                <div className="flex-1 flex items-center gap-2 bg-black/20 border border-white/10 rounded-xl px-3 py-2">
                   <span className="text-brand-green text-xs">✓</span>
                   <span className="text-sm text-slate-200">{spec}</span>
                 </div>
@@ -108,7 +108,7 @@ export default function FieldsPanel() {
                 onChange={(e) => setNewSpec(e.target.value)}
                 onKeyDown={handleSpecKeyDown}
                 placeholder="Agregar especificación..."
-                className="flex-1 bg-brand-navy border border-brand-border rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-green/40 focus:border-brand-green"
+                className="flex-1 bg-black/20 border border-white/10 rounded-xl px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-green/40 focus:border-brand-green"
               />
               <Button
                 onClick={handleAddSpec}

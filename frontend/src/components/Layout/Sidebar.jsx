@@ -1,6 +1,8 @@
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import clsx from 'clsx'
 import useAuthStore from '../../store/authStore'
+import { getPlans } from '../../api/plans'
 
 const navItems = [
   {
@@ -46,16 +48,17 @@ const navItems = [
   },
 ]
 
-const PLAN_LIMITS = { free: 10, pro: 100, enterprise: Infinity }
-
 export default function Sidebar() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
 
-  const planLimit = user?.plan ? PLAN_LIMITS[user.plan] : 10
+  const { data: plansData } = useQuery({ queryKey: ['plans'], queryFn: getPlans })
+  const planDef = plansData?.plans?.find((p) => p.name === user?.plan)
+  const planLimit = planDef ? (planDef.monthlyPosts ?? Infinity) : undefined
   const postsUsed = user?.postsThisMonth || 0
-  const usagePercent = planLimit === Infinity ? 0 : Math.min(100, (postsUsed / planLimit) * 100)
-  const postsLeft = Math.max(0, planLimit - postsUsed)
+  const usagePercent =
+    planLimit === undefined || planLimit === Infinity ? 0 : Math.min(100, (postsUsed / planLimit) * 100)
+  const postsLeft = planLimit === undefined || planLimit === Infinity ? undefined : Math.max(0, planLimit - postsUsed)
 
   const handleLogout = () => {
     logout()
@@ -65,11 +68,11 @@ export default function Sidebar() {
   return (
     <>
       {/* ── Desktop sidebar (lg+) ───────────────────────────────────────────── */}
-      <aside className="hidden lg:flex w-64 h-screen bg-brand-navy border-r border-brand-border flex-col flex-shrink-0">
+      <aside className="hidden lg:flex w-72 h-screen bg-brand-navy border-r border-white/5 flex-col flex-shrink-0">
         {/* Logo */}
-        <div className="p-6 border-b border-brand-border">
+        <div className="p-6">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-brand-green flex items-center justify-center">
+            <div className="w-9 h-9 rounded-2xl bg-brand-green flex items-center justify-center">
               <span className="text-brand-dark font-black text-sm">PC</span>
             </div>
             <div>
@@ -80,17 +83,18 @@ export default function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
                 clsx(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                  'flex items-center gap-3 px-4 py-2.5 rounded-full text-sm font-medium',
+                  'transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
                   isActive
-                    ? 'bg-brand-green/10 text-brand-green border border-brand-green/20'
-                    : 'text-slate-400 hover:text-white hover:bg-brand-surface'
+                    ? 'bg-brand-green/10 text-brand-green ring-1 ring-brand-green/20'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
                 )
               }
             >
@@ -101,35 +105,38 @@ export default function Sidebar() {
         </nav>
 
         {/* Plan info */}
-        <div className="p-4 border-t border-brand-border space-y-3">
-          <div className="bg-brand-surface rounded-lg p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-500">Plan actual</span>
-              <span className="text-xs font-semibold text-brand-green capitalize">
-                {user?.plan || 'free'}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>Posts este mes</span>
-              <span>{postsUsed}/{planLimit === Infinity ? '∞' : planLimit}</span>
-            </div>
-            {planLimit !== Infinity && (
-              <div className="w-full bg-brand-border rounded-full h-1.5">
-                <div
-                  className="h-1.5 rounded-full bg-brand-green transition-all"
-                  style={{ width: `${usagePercent}%` }}
-                />
+        <div className="p-4 space-y-3">
+          {/* Double-bezel usage card */}
+          <div className="rounded-[1.5rem] bg-white/5 border border-white/10 p-1.5">
+            <div className="rounded-[1.1rem] bg-black/20 p-3.5 space-y-2 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-500">Plan actual</span>
+                <span className="text-xs font-semibold text-brand-green capitalize">
+                  {user?.plan || 'free'}
+                </span>
               </div>
-            )}
-            {planLimit !== Infinity && postsLeft <= 2 && (
-              <p className="text-xs text-yellow-400">
-                Solo {postsLeft} post{postsLeft !== 1 ? 's' : ''} restante{postsLeft !== 1 ? 's' : ''}
-              </p>
-            )}
+              <div className="flex items-center justify-between text-xs text-slate-400">
+                <span>Posts este mes</span>
+                <span>{postsUsed}/{planLimit === undefined ? '…' : planLimit === Infinity ? '∞' : planLimit}</span>
+              </div>
+              {planLimit !== undefined && planLimit !== Infinity && (
+                <div className="w-full bg-white/10 rounded-full h-1.5">
+                  <div
+                    className="h-1.5 rounded-full bg-brand-green transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
+                    style={{ width: `${usagePercent}%` }}
+                  />
+                </div>
+              )}
+              {postsLeft !== undefined && postsLeft <= 2 && (
+                <p className="text-xs text-yellow-400">
+                  Solo {postsLeft} post{postsLeft !== 1 ? 's' : ''} restante{postsLeft !== 1 ? 's' : ''}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* User + logout */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 px-1">
             <div className="w-8 h-8 rounded-full bg-brand-green flex items-center justify-center flex-shrink-0">
               <span className="text-brand-dark text-xs font-bold">
                 {user?.email?.[0]?.toUpperCase() || 'U'}
@@ -144,7 +151,7 @@ export default function Sidebar() {
             <button
               onClick={handleLogout}
               title="Cerrar sesión"
-              className="text-slate-500 hover:text-red-400 transition-colors flex-shrink-0"
+              className="text-slate-500 hover:text-red-400 transition-colors duration-300 flex-shrink-0"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -156,7 +163,7 @@ export default function Sidebar() {
       </aside>
 
       {/* ── Mobile bottom navigation (< lg) ────────────────────────────────── */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-brand-navy border-t border-brand-border flex items-center justify-around px-2 py-1 safe-area-bottom">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-brand-navy/90 backdrop-blur-xl border-t border-white/5 flex items-center justify-around px-2 py-1 safe-area-bottom">
         {navItems.map((item) => (
           <NavLink
             key={item.to}

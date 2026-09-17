@@ -110,10 +110,10 @@ export default function PublishPanel({ canvasRef }) {
               <button
                 key={network.id}
                 onClick={() => toggleNetwork(network.id)}
-                className={`w-full flex items-center gap-3 p-3 rounded-lg border text-sm font-medium transition-all ${
+                className={`w-full flex items-center gap-3 p-3 rounded-2xl border text-sm font-medium transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
                   active
                     ? 'border-brand-green bg-brand-green/10 text-white'
-                    : 'border-brand-border bg-brand-surface text-slate-400 hover:border-slate-500'
+                    : 'border-white/10 bg-white/5 text-slate-400 hover:border-white/20'
                 }`}
               >
                 <div style={{ color: active ? network.color : undefined }}>
@@ -146,7 +146,7 @@ export default function PublishPanel({ canvasRef }) {
       />
 
       {/* Schedule toggle */}
-      <div className="flex items-center justify-between p-3 rounded-lg bg-brand-surface border border-brand-border">
+      <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10">
         <div>
           <p className="text-sm font-medium text-slate-200">Programar publicación</p>
           <p className="text-xs text-slate-500">Elige cuándo se publicará</p>
@@ -176,14 +176,14 @@ export default function PublishPanel({ canvasRef }) {
             value={scheduledAt || ''}
             onChange={(e) => setScheduledAt(e.target.value)}
             min={new Date().toISOString().slice(0, 16)}
-            className="w-full bg-brand-navy border border-brand-border rounded-lg px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-green/40 focus:border-brand-green"
+            className="w-full bg-black/20 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-slate-100 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus:outline-none focus:ring-2 focus:ring-brand-green/40 focus:border-brand-green"
           />
         </div>
       )}
 
       {/* Status feedback */}
       {status === 'success' && (
-        <div className="flex items-center gap-3 p-3 rounded-lg bg-brand-green/10 border border-brand-green/30">
+        <div className="flex items-center gap-3 p-3 rounded-2xl bg-brand-green/10 border border-brand-green/30">
           <div className="w-8 h-8 rounded-full bg-brand-green/20 flex items-center justify-center flex-shrink-0">
             <svg className="w-4 h-4 text-brand-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -204,7 +204,7 @@ export default function PublishPanel({ canvasRef }) {
       )}
 
       {status === 'error' && (
-        <div className="flex items-center gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/30">
+        <div className="flex items-center gap-3 p-3 rounded-2xl bg-red-500/10 border border-red-500/30">
           <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
             <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

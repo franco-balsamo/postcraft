@@ -31,10 +31,10 @@ export default function PostCard({ post }) {
     : '—'
 
   return (
-    <div className="bg-brand-surface border border-brand-border rounded-xl overflow-hidden hover:border-slate-600 transition-all duration-200 group">
-      <div className="flex gap-0">
+    <div className="rounded-3xl bg-white/5 border border-white/10 p-1.5 hover:border-white/20 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group">
+      <div className="flex gap-0 rounded-[1.35rem] overflow-hidden bg-brand-surface/80 backdrop-blur-xl">
         {/* Thumbnail */}
-        <div className="w-24 h-24 flex-shrink-0 bg-brand-dark relative overflow-hidden">
+        <div className="w-24 h-24 flex-shrink-0 bg-black/20 relative overflow-hidden">
           {post.thumbnailUrl ? (
             <img
               src={post.thumbnailUrl}
@@ -102,7 +102,7 @@ export default function PostCard({ post }) {
               {!confirmDelete ? (
                 <button
                   onClick={() => setConfirmDelete(true)}
-                  className="p-1.5 text-slate-600 hover:text-red-400 transition-colors rounded"
+                  className="p-1.5 text-slate-600 hover:text-red-400 transition-colors duration-300 rounded-full hover:bg-white/5"
                   title="Eliminar"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -117,7 +117,7 @@ export default function PostCard({ post }) {
                       deleteMutation.mutate()
                       setConfirmDelete(false)
                     }}
-                    className="px-2 py-1 text-xs bg-red-500/20 text-red-400 border border-red-500/30 rounded hover:bg-red-500/30 transition-colors"
+                    className="px-2.5 py-1 text-xs bg-red-500/20 text-red-400 border border-red-500/30 rounded-full hover:bg-red-500/30 transition-colors duration-300"
                   >
                     Confirmar
                   </button>
@@ -133,6 +133,6 @@ export default function PostCard({ post }) {
           </div>
         </div>
       </div>
-    </div>
+      </div>
   )
 }

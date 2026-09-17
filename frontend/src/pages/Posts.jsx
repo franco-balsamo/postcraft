@@ -56,10 +56,10 @@ export default function Posts() {
           <button
             key={f.value}
             onClick={() => handleStatusChange(f.value)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+            className={`px-4 py-2 rounded-full text-sm font-medium border transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
               status === f.value
-                ? 'border-brand-green bg-brand-green/10 text-brand-green'
-                : 'border-brand-border text-slate-400 hover:border-slate-500 hover:text-slate-200'
+                ? 'border-brand-green/30 bg-brand-green/10 text-brand-green'
+                : 'border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-200'
             }`}
           >
             {f.label}
@@ -73,7 +73,7 @@ export default function Posts() {
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
-              className="h-24 bg-brand-surface border border-brand-border rounded-xl animate-pulse"
+              className="h-24 bg-white/5 border border-white/10 rounded-3xl animate-pulse"
             />
           ))}
         </div>
@@ -87,7 +87,7 @@ export default function Posts() {
         </div>
       ) : posts.length === 0 ? (
         <div className="text-center py-20">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-brand-surface border border-brand-border mb-4">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white/5 border border-white/10 mb-4">
             <span className="text-4xl">📭</span>
           </div>
           <p className="text-slate-400 font-semibold text-lg mb-1">No hay posts</p>
@@ -125,10 +125,10 @@ export default function Posts() {
                     <button
                       key={pageNum}
                       onClick={() => setPage(pageNum)}
-                      className={`w-8 h-8 rounded-lg text-sm font-medium transition-all ${
+                      className={`w-8 h-8 rounded-full text-sm font-medium transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98] ${
                         page === pageNum
                           ? 'bg-brand-green text-brand-dark'
-                          : 'text-slate-400 hover:text-white hover:bg-brand-surface'
+                          : 'text-slate-400 hover:text-white hover:bg-white/5'
                       }`}
                     >
                       {pageNum}

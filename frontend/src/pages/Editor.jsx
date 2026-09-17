@@ -18,12 +18,12 @@ export default function Editor() {
     <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
 
       {/* ── Mobile tab bar ───────────────────────────────────────────────── */}
-      <div className="lg:hidden flex border-b border-brand-border bg-brand-navy flex-shrink-0">
+      <div className="lg:hidden flex border-b border-white/5 bg-brand-navy/90 backdrop-blur-xl flex-shrink-0">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 py-2.5 text-xs font-semibold transition-all ${
+            className={`flex-1 py-2.5 text-xs font-semibold transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
               activeTab === tab.id
                 ? 'text-brand-green border-b-2 border-brand-green'
                 : 'text-slate-500 hover:text-slate-300'
@@ -36,7 +36,7 @@ export default function Editor() {
 
       {/* ── Left column: Template selector ──────────────────────────────── */}
       <div className={`
-        lg:w-64 lg:flex-shrink-0 lg:border-r lg:border-brand-border lg:overflow-y-auto lg:flex lg:flex-col
+        lg:w-64 lg:flex-shrink-0 lg:border-r lg:border-white/5 lg:overflow-y-auto lg:flex lg:flex-col
         ${activeTab === 'templates' ? 'flex flex-col flex-1 overflow-y-auto' : 'hidden lg:flex'}
       `}>
         <div className="p-4 lg:p-5">
@@ -54,10 +54,10 @@ export default function Editor() {
 
       {/* ── Right column: Fields + Publish ──────────────────────────────── */}
       <div className={`
-        lg:w-72 lg:flex-shrink-0 lg:border-l lg:border-brand-border lg:overflow-y-auto lg:flex lg:flex-col
+        lg:w-72 lg:flex-shrink-0 lg:border-l lg:border-white/5 lg:overflow-y-auto lg:flex lg:flex-col
         ${activeTab === 'publish' ? 'flex flex-col flex-1 overflow-y-auto' : 'hidden lg:flex'}
       `}>
-        <div className="p-4 lg:p-5 border-b border-brand-border">
+        <div className="p-4 lg:p-5 border-b border-white/5">
           <FieldsPanel />
         </div>
         <div className="p-4 lg:p-5">

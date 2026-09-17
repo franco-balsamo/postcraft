@@ -8,19 +8,23 @@ import Badge from '../components/UI/Badge'
 
 function StatCard({ label, value, sub, icon, color = 'green' }) {
   const colorClasses = {
-    green: 'from-brand-green/20 to-brand-green/5 border-brand-green/20 text-brand-green',
-    blue: 'from-sky-400/20 to-sky-400/5 border-sky-400/20 text-sky-400',
-    purple: 'from-purple-500/20 to-purple-500/5 border-purple-500/20 text-purple-400',
-    yellow: 'from-yellow-400/20 to-yellow-400/5 border-yellow-400/20 text-yellow-400',
+    green: 'from-brand-green/20 to-brand-green/5 text-brand-green',
+    blue: 'from-sky-400/20 to-sky-400/5 text-sky-400',
+    purple: 'from-purple-500/20 to-purple-500/5 text-purple-400',
+    yellow: 'from-yellow-400/20 to-yellow-400/5 text-yellow-400',
   }
   return (
-    <div className={`bg-gradient-to-br ${colorClasses[color]} border rounded-xl p-5`}>
-      <div className="flex items-start justify-between mb-3">
-        <p className="text-sm text-slate-400">{label}</p>
-        <span className="text-xl">{icon}</span>
+    <div className="rounded-3xl bg-white/5 border border-white/10 p-1.5">
+      <div
+        className={`rounded-[1.35rem] bg-gradient-to-br ${colorClasses[color]} p-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]`}
+      >
+        <div className="flex items-start justify-between mb-3">
+          <p className="text-sm text-slate-400">{label}</p>
+          <span className="text-xl">{icon}</span>
+        </div>
+        <p className={`text-3xl font-bold ${colorClasses[color].split(' ').at(-1)}`}>{value}</p>
+        {sub && <p className="text-xs text-slate-500 mt-1">{sub}</p>}
       </div>
-      <p className={`text-3xl font-bold ${colorClasses[color].split(' ').at(-1)}`}>{value}</p>
-      {sub && <p className="text-xs text-slate-500 mt-1">{sub}</p>}
     </div>
   )
 }
@@ -105,42 +109,45 @@ export default function Dashboard() {
 
       {/* Usage bar */}
       {planLimit !== undefined && planLimit !== Infinity && (
-        <div className="bg-brand-surface border border-brand-border rounded-xl p-5">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-sm font-medium text-white">Uso mensual de posts</p>
-              <p className="text-xs text-slate-500 mt-0.5">
-                {postsUsed} de {planLimit} posts usados este mes
-              </p>
+        <div className="rounded-3xl bg-white/5 border border-white/10 p-1.5">
+          <div className="rounded-[1.35rem] bg-brand-surface/80 backdrop-blur-xl p-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="text-sm font-medium text-white">Uso mensual de posts</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {postsUsed} de {planLimit} posts usados este mes
+                </p>
+              </div>
+              <Badge status={user?.plan}>{(user?.plan || 'free').toUpperCase()}</Badge>
             </div>
-            <Badge status={user?.plan}>{(user?.plan || 'free').toUpperCase()}</Badge>
-          </div>
-          <div className="w-full bg-brand-border rounded-full h-2.5">
-            <div
-              className="h-2.5 rounded-full bg-brand-green transition-all"
-              style={{ width: `${Math.min(100, (postsUsed / planLimit) * 100)}%` }}
-            />
-          </div>
-          {planLimit - postsUsed <= 3 && planLimit - postsUsed > 0 && (
-            <div className="mt-3 flex items-center justify-between">
-              <p className="text-xs text-yellow-400">
-                ¡Solo te quedan {planLimit - postsUsed} posts! Considera hacer upgrade.
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/settings')}
-              >
-                Upgrade
-              </Button>
+            <div className="w-full bg-white/10 rounded-full h-2.5">
+              <div
+                className="h-2.5 rounded-full bg-brand-green transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
+                style={{ width: `${Math.min(100, (postsUsed / planLimit) * 100)}%` }}
+              />
             </div>
-          )}
+            {planLimit - postsUsed <= 3 && planLimit - postsUsed > 0 && (
+              <div className="mt-3 flex items-center justify-between">
+                <p className="text-xs text-yellow-400">
+                  ¡Solo te quedan {planLimit - postsUsed} posts! Considera hacer upgrade.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/settings')}
+                >
+                  Upgrade
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       {/* Recent posts */}
-      <div className="bg-brand-surface border border-brand-border rounded-xl overflow-hidden">
-        <div className="p-5 border-b border-brand-border flex items-center justify-between">
+      <div className="rounded-3xl bg-white/5 border border-white/10 p-1.5">
+        <div className="rounded-[1.35rem] bg-brand-surface/80 backdrop-blur-xl overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
+        <div className="p-5 border-b border-white/5 flex items-center justify-between">
           <h3 className="font-semibold text-white">Posts recientes</h3>
           <Button variant="ghost" size="sm" onClick={() => navigate('/posts')}>
             Ver todos →
@@ -167,11 +174,11 @@ export default function Dashboard() {
             <Button onClick={() => navigate('/editor')}>Crear primer post</Button>
           </div>
         ) : (
-          <div className="divide-y divide-brand-border">
+          <div className="divide-y divide-white/5">
             {recentPosts.map((post) => (
-              <div key={post.id || post._id} className="p-4 flex items-center gap-4 hover:bg-brand-dark/40 transition-colors">
+              <div key={post.id || post._id} className="p-4 flex items-center gap-4 hover:bg-white/[0.03] transition-colors duration-300">
                 {/* Thumbnail */}
-                <div className="w-12 h-12 rounded-lg bg-brand-dark border border-brand-border flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-black/20 border border-white/10 flex items-center justify-center flex-shrink-0">
                   {post.thumbnailUrl ? (
                     <img src={post.thumbnailUrl} alt="" className="w-full h-full object-cover rounded-lg" />
                   ) : (
@@ -210,6 +217,7 @@ export default function Dashboard() {
             ))}
           </div>
         )}
+        </div>
       </div>
 
       {/* Quick actions */}
@@ -237,10 +245,12 @@ export default function Dashboard() {
           <button
             key={item.title}
             onClick={item.action}
-            className="text-left p-5 bg-brand-surface border border-brand-border rounded-xl hover:border-brand-green/40 hover:bg-brand-green/5 transition-all group"
+            className="group text-left p-5 rounded-3xl bg-white/5 border border-white/10 hover:border-brand-green/30 hover:bg-brand-green/5 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
           >
-            <span className="text-3xl block mb-3">{item.icon}</span>
-            <p className="font-semibold text-white group-hover:text-brand-green transition-colors">
+            <span className="text-3xl block mb-3 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:-translate-y-0.5">
+              {item.icon}
+            </span>
+            <p className="font-semibold text-white group-hover:text-brand-green transition-colors duration-300">
               {item.title}
             </p>
             <p className="text-sm text-slate-500 mt-0.5">{item.desc}</p>
