@@ -12,7 +12,7 @@
     padding: 0;
     background-color: #0a0e1a;
     color: #e2e8f0;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Geist Sans', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -37,20 +37,6 @@
 }
 
 @layer utilities {
-  .gradient-text {
-    background: linear-gradient(135deg, #00ff88, #00d4ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .gradient-border {
-    position: relative;
-    background: linear-gradient(#161b2e, #161b2e) padding-box,
-      linear-gradient(135deg, #00ff88, #00d4ff) border-box;
-    border: 1px solid transparent;
-  }
-
   .glass {
     background: rgba(22, 27, 46, 0.8);
     backdrop-filter: blur(12px);

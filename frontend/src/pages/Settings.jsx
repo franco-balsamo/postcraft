@@ -195,13 +195,13 @@ export default function Settings() {
             const display = PLAN_DISPLAY[plan.name] || { color: 'gray' }
             const colorBorder = {
               gray: 'border-slate-600',
-              cyan: 'border-brand-cyan',
+              cyan: 'border-brand-green',
               purple: 'border-purple-500',
             }[display.color]
 
             const colorText = {
               gray: 'text-slate-400',
-              cyan: 'text-brand-cyan',
+              cyan: 'text-brand-green',
               purple: 'text-purple-400',
             }[display.color]
 
@@ -216,7 +216,7 @@ export default function Settings() {
               >
                 {display.popular && (
                   <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-                    <span className="px-3 py-0.5 bg-brand-cyan text-brand-dark text-xs font-bold rounded-full">
+                    <span className="px-3 py-0.5 bg-brand-green text-brand-dark text-xs font-bold rounded-full">
                       Popular
                     </span>
                   </div>

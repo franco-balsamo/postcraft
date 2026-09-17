@@ -54,7 +54,7 @@ export default function PostCard({ post }) {
             </div>
           )}
           {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-green/10 to-brand-cyan/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute inset-0 bg-brand-green/10 opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
 
         {/* Info */}

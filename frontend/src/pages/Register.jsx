@@ -65,7 +65,7 @@ export default function Register() {
         />
         <div
           className="absolute bottom-1/3 left-1/4 w-80 h-80 rounded-full opacity-15"
-          style={{ background: 'radial-gradient(circle, #00d4ff 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(circle, #00ff88 0%, transparent 70%)' }}
         />
       </div>
 
@@ -73,7 +73,7 @@ export default function Register() {
         <div className="bg-brand-navy border border-brand-border rounded-2xl p-8 shadow-2xl">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-green to-brand-cyan mb-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-green mb-4">
               <span className="text-brand-dark font-black text-2xl">PC</span>
             </div>
             <h1 className="text-2xl font-bold text-white">Crear cuenta</h1>
@@ -159,7 +159,7 @@ export default function Register() {
               ¿Ya tenés cuenta?{' '}
               <Link
                 to="/login"
-                className="text-brand-green hover:text-brand-cyan transition-colors font-medium"
+                className="text-brand-green hover:text-brand-green transition-colors font-medium"
               >
                 Iniciar sesión
               </Link>

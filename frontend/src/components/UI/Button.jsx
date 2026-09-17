@@ -2,7 +2,7 @@ import clsx from 'clsx'
 
 const variants = {
   primary:
-    'bg-gradient-to-r from-brand-green to-brand-cyan text-brand-dark font-semibold hover:opacity-90 shadow-lg shadow-brand-green/20',
+    'bg-brand-green text-brand-dark font-semibold hover:opacity-90 shadow-lg shadow-brand-green/20',
   secondary:
     'bg-brand-surface border border-brand-border text-slate-200 hover:border-brand-green hover:text-brand-green',
   danger:

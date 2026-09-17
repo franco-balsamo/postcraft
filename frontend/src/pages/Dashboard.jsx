@@ -9,7 +9,7 @@ import Badge from '../components/UI/Badge'
 function StatCard({ label, value, sub, icon, color = 'green' }) {
   const colorClasses = {
     green: 'from-brand-green/20 to-brand-green/5 border-brand-green/20 text-brand-green',
-    cyan: 'from-brand-cyan/20 to-brand-cyan/5 border-brand-cyan/20 text-brand-cyan',
+    blue: 'from-sky-400/20 to-sky-400/5 border-sky-400/20 text-sky-400',
     purple: 'from-purple-500/20 to-purple-500/5 border-purple-500/20 text-purple-400',
     yellow: 'from-yellow-400/20 to-yellow-400/5 border-yellow-400/20 text-yellow-400',
   }
@@ -85,7 +85,7 @@ export default function Dashboard() {
           value={statsLoading || postsLeft === undefined ? '...' : (typeof postsLeft === 'number' ? postsLeft : '∞')}
           sub="en tu plan actual"
           icon="⚡"
-          color="cyan"
+          color="blue"
         />
         <StatCard
           label="Redes conectadas"
@@ -117,7 +117,7 @@ export default function Dashboard() {
           </div>
           <div className="w-full bg-brand-border rounded-full h-2.5">
             <div
-              className="h-2.5 rounded-full bg-gradient-to-r from-brand-green to-brand-cyan transition-all"
+              className="h-2.5 rounded-full bg-brand-green transition-all"
               style={{ width: `${Math.min(100, (postsUsed / planLimit) * 100)}%` }}
             />
           </div>

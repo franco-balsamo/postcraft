@@ -112,7 +112,7 @@ export default function CanvasPreview() {
       <button
         onClick={handleDownload}
         disabled={downloading}
-        className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-green to-brand-cyan text-brand-dark font-semibold text-sm rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-brand-green/20"
+        className="flex items-center gap-2 px-5 py-2.5 bg-brand-green text-brand-dark font-semibold text-sm rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-brand-green/20"
       >
         {downloading ? (
           <>

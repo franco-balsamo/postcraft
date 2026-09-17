@@ -69,7 +69,7 @@ export default function Sidebar() {
         {/* Logo */}
         <div className="p-6 border-b border-brand-border">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-green to-brand-cyan flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-brand-green flex items-center justify-center">
               <span className="text-brand-dark font-black text-sm">PC</span>
             </div>
             <div>
@@ -116,7 +116,7 @@ export default function Sidebar() {
             {planLimit !== Infinity && (
               <div className="w-full bg-brand-border rounded-full h-1.5">
                 <div
-                  className="h-1.5 rounded-full bg-gradient-to-r from-brand-green to-brand-cyan transition-all"
+                  className="h-1.5 rounded-full bg-brand-green transition-all"
                   style={{ width: `${usagePercent}%` }}
                 />
               </div>
@@ -130,7 +130,7 @@ export default function Sidebar() {
 
           {/* User + logout */}
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-green to-brand-cyan flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-brand-green flex items-center justify-center flex-shrink-0">
               <span className="text-brand-dark text-xs font-bold">
                 {user?.email?.[0]?.toUpperCase() || 'U'}
               </span>

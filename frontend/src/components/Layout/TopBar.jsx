@@ -21,7 +21,7 @@ export default function TopBar() {
       {/* Logo (mobile only) + page title */}
       <div className="flex items-center gap-3">
         {/* Logo mark — only visible on mobile where sidebar is hidden */}
-        <div className="lg:hidden w-7 h-7 rounded-md bg-gradient-to-br from-brand-green to-brand-cyan flex items-center justify-center flex-shrink-0">
+        <div className="lg:hidden w-7 h-7 rounded-md bg-brand-green flex items-center justify-center flex-shrink-0">
           <span className="text-brand-dark font-black text-xs">PC</span>
         </div>
         <h1 className="text-sm font-semibold text-white">{title}</h1>
@@ -51,7 +51,7 @@ export default function TopBar() {
         {location.pathname !== '/editor' && (
           <button
             onClick={() => navigate('/editor')}
-            className="flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 bg-gradient-to-r from-brand-green to-brand-cyan text-brand-dark text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 bg-brand-green text-brand-dark text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
