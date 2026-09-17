@@ -1,11 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getDashboardStats, getPosts } from '../api/posts'
+import { getPlans } from '../api/plans'
 import useAuthStore from '../store/authStore'
 import Button from '../components/UI/Button'
 import Badge from '../components/UI/Badge'
-
-const PLAN_LIMITS = { free: 10, pro: 100, enterprise: Infinity }
 
 function StatCard({ label, value, sub, icon, color = 'green' }) {
   const colorClasses = {
@@ -30,9 +29,13 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
 
-  const planLimit = user?.plan ? PLAN_LIMITS[user.plan] : 10
+  const { data: plansData } = useQuery({ queryKey: ['plans'], queryFn: getPlans })
+  const planDef = plansData?.plans?.find((p) => p.name === user?.plan)
+  // monthlyPosts is null for unlimited plans; undefined while plans haven't loaded yet.
+  const planLimit = planDef ? (planDef.monthlyPosts ?? Infinity) : undefined
   const postsUsed = user?.postsThisMonth || 0
-  const postsLeft = planLimit === Infinity ? '∞' : Math.max(0, planLimit - postsUsed)
+  const postsLeft =
+    planLimit === undefined ? undefined : planLimit === Infinity ? '∞' : Math.max(0, planLimit - postsUsed)
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['dashboard-stats'],
@@ -73,13 +76,13 @@ export default function Dashboard() {
         <StatCard
           label="Posts este mes"
           value={statsLoading ? '...' : (stats?.postsThisMonth ?? postsUsed)}
-          sub={`de ${planLimit === Infinity ? '∞' : planLimit} permitidos`}
+          sub={`de ${planLimit === undefined ? '...' : planLimit === Infinity ? '∞' : planLimit} permitidos`}
           icon="📊"
           color="green"
         />
         <StatCard
           label="Posts restantes"
-          value={statsLoading ? '...' : (typeof postsLeft === 'number' ? postsLeft : '∞')}
+          value={statsLoading || postsLeft === undefined ? '...' : (typeof postsLeft === 'number' ? postsLeft : '∞')}
           sub="en tu plan actual"
           icon="⚡"
           color="cyan"
@@ -101,7 +104,7 @@ export default function Dashboard() {
       </div>
 
       {/* Usage bar */}
-      {planLimit !== Infinity && (
+      {planLimit !== undefined && planLimit !== Infinity && (
         <div className="bg-brand-surface border border-brand-border rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <div>
