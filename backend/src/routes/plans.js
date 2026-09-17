@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { requireAuth } from '../middleware/auth.js';
 import { query } from '../config/db.js';
 import { createError } from '../middleware/errorHandler.js';
+import { getAllPlans, getPlanDetails } from '../services/planService.js';
 import 'dotenv/config';
 
 export const router = Router();
@@ -14,54 +15,38 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 // Map plan names to Stripe price IDs (from env).
 // Only paid plans appear here – Free is the default and has no Stripe price.
 const PLAN_PRICE_MAP = {
-  pro:    process.env.STRIPE_PRICE_PRO,
-  agency: process.env.STRIPE_PRICE_AGENCY,
+  starter: process.env.STRIPE_PRICE_STARTER,
+  pro:     process.env.STRIPE_PRICE_PRO,
+  agency:  process.env.STRIPE_PRICE_AGENCY,
 };
 
-// PostCraft plan definitions (source of truth for the API response).
-// These match exactly what is configured in Stripe.
-const PLANS = [
-  {
-    name:         'free',
-    label:        'Free',
-    price:        0,
-    currency:     'usd',
-    interval:     null,
-    monthlyPosts: 10,
-    networks:     ['instagram', 'facebook'],
-    scheduling:   false,
-    stripePriceId: null,
-  },
-  {
-    name:         'pro',
-    label:        'Pro',
-    price:        19,
-    currency:     'usd',
-    interval:     'month',
-    monthlyPosts: 100,
-    networks:     ['instagram', 'facebook'],
-    scheduling:   true,
-    stripePriceId: process.env.STRIPE_PRICE_PRO || null,
-  },
-  {
-    name:         'agency',
-    label:        'Agency',
-    price:        49,
-    currency:     'usd',
-    interval:     'month',
-    monthlyPosts: null,   // null = unlimited
-    networks:     ['instagram', 'facebook'],
-    scheduling:   true,
-    stripePriceId: process.env.STRIPE_PRICE_AGENCY || null,
-  },
-];
+// `plan_limits` (see planService.js) is the source of truth for plan
+// definitions. This just reshapes a DB row into the API response shape.
+function toApiShape(row) {
+  return {
+    name:          row.plan,
+    label:         row.label,
+    price:         Number(row.price_monthly),
+    currency:      row.currency,
+    interval:      row.billing_interval,
+    monthlyPosts:  row.monthly_posts,
+    networks:      row.networks,
+    scheduling:    row.scheduling,
+    stripePriceId: PLAN_PRICE_MAP[row.plan] || null,
+  };
+}
 
 /**
  * GET /plans
  * Returns all available plans with limits and pricing.
  */
-router.get('/', (_req, res) => {
-  res.json({ plans: PLANS });
+router.get('/', async (_req, res, next) => {
+  try {
+    const rows = await getAllPlans();
+    res.json({ plans: rows.map(toApiShape) });
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
@@ -81,16 +66,16 @@ router.get('/current', requireAuth, async (req, res, next) => {
       throw createError(404, 'User not found');
     }
 
-    const user  = rows[0];
-    const planDef = PLANS.find(p => p.name === user.plan) || PLANS[0];
-    const limit   = planDef.monthlyPosts; // null = unlimited
+    const user    = rows[0];
+    const planDef = await getPlanDetails(user.plan);
+    const limit   = planDef ? planDef.monthly_posts : null; // null = unlimited
 
     res.json({
       plan:              user.plan,
-      price:             planDef.price,
+      price:             planDef ? Number(planDef.price_monthly) : null,
       postsThisMonth:    user.posts_this_month,
       monthlyLimit:      limit,
-      scheduling:        planDef.scheduling,
+      scheduling:        planDef ? planDef.scheduling : false,
       billingCycleStart: user.billing_cycle_start,
       stripeCustomerId:  user.stripe_customer_id || null,
     });

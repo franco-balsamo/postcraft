@@ -2,12 +2,14 @@ import { query, withTransaction } from '../config/db.js';
 import { createError } from '../middleware/errorHandler.js';
 import 'dotenv/config';
 
-// Fallback limits in case DB is unreachable.
-// null means unlimited (Agency plan).
+// Fallback limits used ONLY if the DB is unreachable.
+// `plan_limits` (see migrations/001_init.sql + 002_plan_limits_display.sql)
+// is the single source of truth; keep these numbers mirrored to that seed.
 const FALLBACK_LIMITS = {
-  free:   parseInt(process.env.PLAN_FREE_LIMIT,   10) || 10,
-  pro:    parseInt(process.env.PLAN_PRO_LIMIT,    10) || 100,
-  agency: null, // unlimited
+  free:    5,
+  starter: 50,
+  pro:     200,
+  agency:  1000,
 };
 
 /**
@@ -35,6 +37,17 @@ export async function getAllPlans() {
     'SELECT * FROM plan_limits ORDER BY price_monthly ASC'
   );
   return rows;
+}
+
+/**
+ * Returns a single plan's full row (limits + display fields), or null.
+ */
+export async function getPlanDetails(plan) {
+  const { rows } = await query(
+    'SELECT * FROM plan_limits WHERE plan = $1',
+    [plan]
+  );
+  return rows[0] || null;
 }
 
 /**
@@ -113,7 +126,7 @@ export async function resetMonthlyCounts() {
  * Update a user's plan (called after Stripe payment confirmation).
  */
 export async function setUserPlan(userId, newPlan) {
-  const validPlans = ['free', 'pro', 'agency'];
+  const validPlans = ['free', 'starter', 'pro', 'agency'];
   if (!validPlans.includes(newPlan)) {
     throw createError(400, `Invalid plan: ${newPlan}`);
   }

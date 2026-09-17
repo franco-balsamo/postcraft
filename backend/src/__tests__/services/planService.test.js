@@ -25,14 +25,14 @@ describe('getPlanLimit', () => {
     query.mockRejectedValueOnce(new Error('DB down'))
 
     const limit = await getPlanLimit('free')
-    expect(limit).toBe(10)
+    expect(limit).toBe(5)
   })
 
-  it('devuelve null para plan agency (ilimitado)', async () => {
+  it('devuelve el fallback de agency (no ilimitado) si la DB falla', async () => {
     query.mockRejectedValueOnce(new Error('DB down'))
 
     const limit = await getPlanLimit('agency')
-    expect(limit).toBeNull()
+    expect(limit).toBe(1000)
   })
 })
 

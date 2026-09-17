@@ -1,39 +1,28 @@
 import { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { connectMeta, updateProfile, getProfile } from '../api/auth'
-import { getPlans, upgradePlan } from '../api/plans'
+import { getPlans, upgradePlan, openBillingPortal } from '../api/plans'
 import useAuthStore from '../store/authStore'
 import Button from '../components/UI/Button'
 import Input from '../components/UI/Input'
 import Badge from '../components/UI/Badge'
 
-const PLANS = [
-  {
-    id: 'free',
-    name: 'Free',
-    price: '$0',
-    period: '/mes',
-    features: ['10 posts/mes', '1 cuenta Meta', 'Templates básicos', 'Descarga PNG'],
-    color: 'gray',
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: '$19',
-    period: '/mes',
-    features: ['100 posts/mes', '3 cuentas Meta', 'Templates premium', 'Programación', 'Sin marca de agua'],
-    color: 'cyan',
-    popular: true,
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: '$49',
-    period: '/mes',
-    features: ['Posts ilimitados', 'Cuentas ilimitadas', 'Templates exclusivos', 'API access', 'Soporte prioritario'],
-    color: 'purple',
-  },
-]
+// Presentation-only hints (color, "popular" badge) keyed by plan name.
+// Everything else (price, limits, features) comes from GET /plans — the
+// `plan_limits` DB table is the single source of truth for that data.
+const PLAN_DISPLAY = {
+  free:    { color: 'gray' },
+  starter: { color: 'cyan' },
+  pro:     { color: 'cyan', popular: true },
+  agency:  { color: 'purple' },
+}
+
+function planFeatures(plan) {
+  const posts = plan.monthlyPosts === null ? 'Posts ilimitados' : `${plan.monthlyPosts} posts/mes`
+  const features = [posts, `Redes: ${plan.networks.join(', ')}`]
+  features.push(plan.scheduling ? 'Programación de posts' : 'Publicación inmediata')
+  return features
+}
 
 function Section({ title, desc, children }) {
   return (
@@ -49,7 +38,9 @@ function Section({ title, desc, children }) {
 
 export default function Settings() {
   const { user, updateUser } = useAuthStore()
-  const queryClient = useQueryClient()
+
+  const { data: plansData } = useQuery({ queryKey: ['plans'], queryFn: getPlans })
+  const plans = plansData?.plans || []
 
   const [profileForm, setProfileForm] = useState({
     name: user?.name || '',
@@ -79,12 +70,23 @@ export default function Settings() {
     },
   })
 
-  // Upgrade plan
+  // Upgrade plan: the backend creates a Stripe Checkout session and the
+  // plan only actually changes once Stripe confirms payment via webhook,
+  // so redirect to Stripe instead of updating local state optimistically.
   const upgradeMutation = useMutation({
     mutationFn: upgradePlan,
     onSuccess: (data) => {
-      updateUser({ plan: data.plan })
-      queryClient.invalidateQueries({ queryKey: ['plans'] })
+      if (data.url) window.location.href = data.url
+    },
+  })
+
+  // Downgrade to free: there is no direct "set plan to free" endpoint.
+  // The user cancels their subscription in the Stripe Customer Portal;
+  // the plan flips to free once Stripe's webhook confirms cancellation.
+  const portalMutation = useMutation({
+    mutationFn: openBillingPortal,
+    onSuccess: (data) => {
+      if (data.url) window.location.href = data.url
     },
   })
 
@@ -187,31 +189,32 @@ export default function Settings() {
         title="Plan actual"
         desc="Elegí el plan que mejor se adapte a tus necesidades"
       >
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {PLANS.map((plan) => {
-            const isCurrent = (user?.plan || 'free') === plan.id
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          {plans.map((plan) => {
+            const isCurrent = (user?.plan || 'free') === plan.name
+            const display = PLAN_DISPLAY[plan.name] || { color: 'gray' }
             const colorBorder = {
               gray: 'border-slate-600',
               cyan: 'border-brand-cyan',
               purple: 'border-purple-500',
-            }[plan.color]
+            }[display.color]
 
             const colorText = {
               gray: 'text-slate-400',
               cyan: 'text-brand-cyan',
               purple: 'text-purple-400',
-            }[plan.color]
+            }[display.color]
 
             return (
               <div
-                key={plan.id}
+                key={plan.name}
                 className={`relative rounded-xl border p-4 ${
                   isCurrent
                     ? `${colorBorder} bg-brand-dark`
                     : 'border-brand-border bg-brand-dark/50'
                 } transition-all`}
               >
-                {plan.popular && (
+                {display.popular && (
                   <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
                     <span className="px-3 py-0.5 bg-brand-cyan text-brand-dark text-xs font-bold rounded-full">
                       Popular
@@ -220,15 +223,17 @@ export default function Settings() {
                 )}
 
                 <div className="mb-3">
-                  <p className={`font-bold text-lg ${colorText}`}>{plan.name}</p>
+                  <p className={`font-bold text-lg ${colorText}`}>{plan.label}</p>
                   <p className="text-white text-2xl font-bold">
-                    {plan.price}
-                    <span className="text-sm font-normal text-slate-500">{plan.period}</span>
+                    ${plan.price}
+                    <span className="text-sm font-normal text-slate-500">
+                      {plan.interval ? `/${plan.interval === 'month' ? 'mes' : plan.interval}` : ''}
+                    </span>
                   </p>
                 </div>
 
                 <ul className="space-y-1.5 mb-4">
-                  {plan.features.map((f) => (
+                  {planFeatures(plan).map((f) => (
                     <li key={f} className="flex items-center gap-2 text-xs text-slate-400">
                       <span className="text-brand-green">✓</span>
                       {f}
@@ -240,15 +245,25 @@ export default function Settings() {
                   <div className="text-center text-xs text-slate-500 py-2 border border-brand-border rounded-lg">
                     Plan actual
                   </div>
+                ) : plan.name === 'free' ? (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    fullWidth
+                    loading={portalMutation.isPending}
+                    onClick={() => portalMutation.mutate()}
+                  >
+                    Hacer downgrade
+                  </Button>
                 ) : (
                   <Button
-                    variant={plan.color === 'cyan' ? 'primary' : 'secondary'}
+                    variant={display.color === 'cyan' ? 'primary' : 'secondary'}
                     size="sm"
                     fullWidth
                     loading={upgradeMutation.isPending}
-                    onClick={() => upgradeMutation.mutate({ planId: plan.id })}
+                    onClick={() => upgradeMutation.mutate({ plan: plan.name })}
                   >
-                    {plan.id === 'free' ? 'Hacer downgrade' : 'Actualizar'}
+                    Actualizar
                   </Button>
                 )}
               </div>
@@ -272,8 +287,11 @@ export default function Settings() {
             Error al cambiar el plan. Verificá tu método de pago.
           </p>
         )}
-        {upgradeMutation.isSuccess && (
-          <p className="text-xs text-brand-green mt-2">Plan actualizado correctamente.</p>
+        {portalMutation.isError && (
+          <p className="text-xs text-red-400 mt-2">
+            {portalMutation.error?.response?.data?.message ||
+              'Error al abrir el portal de facturación.'}
+          </p>
         )}
       </Section>
 

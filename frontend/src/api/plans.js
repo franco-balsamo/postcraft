@@ -5,8 +5,8 @@ export const getPlans = async () => {
   return data
 }
 
-export const upgradePlan = async ({ planId, paymentMethodId }) => {
-  const { data } = await client.post('/api/plans/upgrade', { planId, paymentMethodId })
+export const upgradePlan = async ({ plan, successUrl, cancelUrl }) => {
+  const { data } = await client.post('/api/plans/upgrade', { plan, successUrl, cancelUrl })
   return data
 }
 
@@ -15,7 +15,11 @@ export const getCurrentPlan = async () => {
   return data
 }
 
-export const cancelPlan = async () => {
-  const { data } = await client.post('/api/plans/cancel')
+// Opens the Stripe Customer Portal, where the user can cancel/downgrade
+// their subscription. There is no direct "downgrade to free" endpoint:
+// the plan only actually changes to free once Stripe confirms the
+// cancellation via webhook (see backend routes/webhooks.js).
+export const openBillingPortal = async ({ returnUrl } = {}) => {
+  const { data } = await client.post('/api/plans/portal', { returnUrl })
   return data
 }
