@@ -1,17 +1,16 @@
 import { useState } from 'react'
 import useEditorStore from '../../store/editorStore'
-import Input, { Textarea } from '../UI/Input'
+import Input from '../UI/Input'
 import Button from '../UI/Button'
 
 const BADGE_OPTIONS = ['NUEVO', 'REACONDICIONADO', 'OFERTA', 'DESTACADO', 'AGOTADO']
 
 export default function FieldsPanel() {
-  const { templateType, templateName, fields, setField, addSpec, removeSpec } = useEditorStore()
+  const { templateName, fields, setField, addSpec, removeSpec } = useEditorStore()
   const [newSpec, setNewSpec] = useState('')
 
   const isProducto = templateName === 'producto'
   const isOferta = templateName === 'oferta'
-  const isTip = templateName === 'tip'
 
   const handleAddSpec = () => {
     const trimmed = newSpec.trim()
@@ -31,7 +30,7 @@ export default function FieldsPanel() {
     <div className="space-y-5">
       <div>
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">
-          Contenido del diseño
+          Qué va a decir tu post
         </p>
       </div>
 
@@ -80,9 +79,7 @@ export default function FieldsPanel() {
 
           {/* Specs */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-300">
-              Especificaciones
-            </label>
+            <label className="text-sm font-medium text-slate-300">Especificaciones</label>
 
             {(fields.specs || []).map((spec, i) => (
               <div key={i} className="flex items-center gap-2">
@@ -95,7 +92,12 @@ export default function FieldsPanel() {
                   className="text-slate-600 hover:text-red-400 transition-colors p-1"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -156,20 +158,9 @@ export default function FieldsPanel() {
         </>
       )}
 
-      {/* Tip fields */}
-      {isTip && (
-        <Textarea
-          label="Tip / consejo"
-          value={fields.tip || ''}
-          onChange={(e) => setField('tip', e.target.value)}
-          placeholder="Escribe el tip aquí..."
-          rows={5}
-        />
-      )}
-
       {/* Common: if none of the above matched, show a hint */}
-      {!isProducto && !isOferta && !isTip && (
-        <div className="text-sm text-slate-500 text-center py-4">
+      {!isProducto && !isOferta && (
+        <div className="text-sm text-slate-400 text-center py-4">
           Selecciona un tipo de contenido para editar los campos.
         </div>
       )}

@@ -1,5 +1,7 @@
 import clsx from 'clsx'
 import useEditorStore from '../../store/editorStore'
+import PostProducto from './templates/PostProducto'
+import PostOferta from './templates/PostOferta'
 
 const types = [
   { value: 'post', label: 'Post', icon: '□', desc: '1080×1080' },
@@ -7,9 +9,41 @@ const types = [
 ]
 
 const templates = [
-  { value: 'producto', label: 'Producto', icon: '📦', desc: 'Ficha de producto' },
-  { value: 'oferta', label: 'Oferta', icon: '🏷️', desc: 'Descuento / promo' },
+  { value: 'producto', label: 'Producto', desc: 'Ficha de producto' },
+  { value: 'oferta', label: 'Oferta', desc: 'Descuento / promo' },
 ]
+
+// Example content for the type-picker thumbnails only — never the live
+// editor state. A real scaled-down render of the template beats an emoji:
+// it's always accurate, and needs no separate image asset to keep in sync.
+const THUMBNAIL_COMPONENTS = { producto: PostProducto, oferta: PostOferta }
+const THUMBNAIL_FIELDS = {
+  producto: { nombre: 'iPhone 15 Pro', precio: '$999', specs: ['128GB', 'Titanio', 'USB-C'], badge: 'NUEVO' },
+  oferta: { nombre: 'iPhone 15 Pro', descuento: '20%', codigo: 'FEB20', vigencia: 'Hasta el 31/03' },
+}
+const THUMBNAIL_SIZE = 56
+const THUMBNAIL_SCALE = THUMBNAIL_SIZE / 1080
+
+function TemplateThumbnail({ name }) {
+  const Component = THUMBNAIL_COMPONENTS[name]
+  return (
+    <div
+      className="rounded-lg overflow-hidden flex-shrink-0 border border-white/10"
+      style={{ width: THUMBNAIL_SIZE, height: THUMBNAIL_SIZE }}
+    >
+      <div
+        style={{
+          transform: `scale(${THUMBNAIL_SCALE})`,
+          transformOrigin: 'top left',
+          width: 1080,
+          height: 1080,
+        }}
+      >
+        <Component fields={THUMBNAIL_FIELDS[name]} />
+      </div>
+    </div>
+  )
+}
 
 export default function TemplateSelector() {
   const { templateType, templateName, setTemplate } = useEditorStore()
@@ -58,7 +92,7 @@ export default function TemplateSelector() {
                   : 'border-white/10 bg-white/5 text-slate-400 hover:border-slate-500 hover:text-slate-200'
               )}
             >
-              <span className="text-xl">{t.icon}</span>
+              <TemplateThumbnail name={t.value} />
               <div className="text-left">
                 <p className="font-semibold">{t.label}</p>
                 <p className="text-xs opacity-60">{t.desc}</p>
@@ -73,7 +107,7 @@ export default function TemplateSelector() {
 
       {/* Preview label */}
       <div className="pt-2 border-t border-white/5">
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-400">
           Plantilla activa:{' '}
           <span className="text-brand-green font-medium capitalize">
             {templateType} {templateName}

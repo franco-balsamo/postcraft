@@ -25,9 +25,9 @@ export default function CanvasPreview() {
   const { templateType, templateName } = useEditorStore()
   const canvasRef = useRef(null)
   const [downloading, setDownloading] = useState(false)
+  const [downloadError, setDownloadError] = useState('')
 
-  const TemplateComponent =
-    TEMPLATES[templateType]?.[templateName] || PostProducto
+  const TemplateComponent = TEMPLATES[templateType]?.[templateName] || PostProducto
 
   const { w, h } = DIMENSIONS[templateType] || { w: 1080, h: 1080 }
 
@@ -40,6 +40,7 @@ export default function CanvasPreview() {
   const handleDownload = useCallback(async () => {
     if (!canvasRef.current) return
     setDownloading(true)
+    setDownloadError('')
     try {
       const html2canvas = (await import('html2canvas')).default
       const canvas = await html2canvas(canvasRef.current, {
@@ -57,7 +58,7 @@ export default function CanvasPreview() {
       link.click()
     } catch (err) {
       console.error('Error al exportar:', err)
-      alert('Error al exportar la imagen. Por favor intentá de nuevo.')
+      setDownloadError('No se pudo exportar la imagen. Probá de nuevo.')
     } finally {
       setDownloading(false)
     }
@@ -66,12 +67,14 @@ export default function CanvasPreview() {
   return (
     <div className="flex flex-col items-center gap-4">
       {/* Canvas info */}
-      <div className="flex items-center gap-3 text-xs text-slate-500">
+      <div className="flex items-center gap-3 text-xs text-slate-400">
         <span className="capitalize font-medium text-slate-400">
           {templateType} {templateName}
         </span>
         <span>•</span>
-        <span>{w}×{h}px</span>
+        <span>
+          {w}×{h}px
+        </span>
         <span>•</span>
         <span className="text-brand-green">Vista previa</span>
       </div>
@@ -118,13 +121,28 @@ export default function CanvasPreview() {
         <span className="w-8 h-8 rounded-full bg-brand-dark/10 flex items-center justify-center flex-shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-y-0.5">
           {downloading ? (
             <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              />
             </svg>
           ) : (
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              />
             </svg>
           )}
         </span>
@@ -134,6 +152,40 @@ export default function CanvasPreview() {
       <p className="text-xs text-slate-600">
         El archivo descargado será de {w * 2}×{h * 2}px (escala 2x)
       </p>
+
+      {downloadError && (
+        <div className="w-full max-w-[420px] flex items-center gap-3 p-3 rounded-2xl bg-red-500/10 border border-red-500/30 animate-fade-in-fast">
+          <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+            <svg
+              className="w-4 h-4 text-red-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <p className="flex-1 text-xs text-slate-400">{downloadError}</p>
+          <button
+            onClick={() => setDownloadError('')}
+            className="text-slate-400 hover:text-slate-300"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   )
 }

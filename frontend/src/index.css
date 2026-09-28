@@ -7,7 +7,8 @@
     box-sizing: border-box;
   }
 
-  html, body {
+  html,
+  body {
     margin: 0;
     padding: 0;
     background-color: #0a0e1a;
@@ -59,10 +60,47 @@
   .animate-fade-up {
     animation: fade-up 0.8s cubic-bezier(0.32, 0.72, 0, 1) both;
   }
+
+  @keyframes fade-in-fast {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* For small, frequent UI reveals (a form field appearing on a toggle) —
+     fade-up above is tuned for page-level entrances and too slow here. */
+  .animate-fade-in-fast {
+    animation: fade-in-fast 0.2s cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+
+  @keyframes success-pop {
+    0% {
+      transform: scale(1);
+    }
+    40% {
+      transform: scale(1.04);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* The signature moment for a successful publish — the button itself
+     confirms, instead of a separate toast the eye has to find. */
+  .animate-success-pop {
+    animation: success-pop 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-fade-up {
+  .animate-fade-up,
+  .animate-fade-in-fast,
+  .animate-success-pop {
     animation: none;
   }
 }

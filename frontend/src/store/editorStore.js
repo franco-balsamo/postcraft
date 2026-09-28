@@ -1,26 +1,24 @@
 import { create } from 'zustand'
 
 const useEditorStore = create((set) => ({
-  templateType: 'post',       // 'post' | 'story'
-  templateName: 'producto',   // 'producto' | 'oferta' | 'tip'
+  templateType: 'post', // 'post' | 'story'
+  templateName: 'producto', // 'producto' | 'oferta'
 
   fields: {
-    nombre: 'iPhone 15 Pro',
-    precio: '$999',
-    specs: ['128GB', 'Titanio', 'USB-C'],
-    descuento: '20%',
-    codigo: 'FEB20',
-    vigencia: 'Hasta el 31/03',
-    tip: '',
-    badge: 'NUEVO',
+    nombre: '',
+    precio: '',
+    specs: [],
+    descuento: '',
+    codigo: '',
+    vigencia: '',
+    badge: '',
   },
 
   selectedNetworks: ['instagram'],
   caption: '',
   scheduledAt: null,
 
-  setTemplate: (type, name) =>
-    set({ templateType: type, templateName: name }),
+  setTemplate: (type, name) => set({ templateType: type, templateName: name }),
 
   setField: (key, value) =>
     set((state) => ({
@@ -48,9 +46,7 @@ const useEditorStore = create((set) => ({
       const selected = state.selectedNetworks
       const exists = selected.includes(network)
       return {
-        selectedNetworks: exists
-          ? selected.filter((n) => n !== network)
-          : [...selected, network],
+        selectedNetworks: exists ? selected.filter((n) => n !== network) : [...selected, network],
       }
     }),
 
@@ -63,14 +59,13 @@ const useEditorStore = create((set) => ({
       templateType: 'post',
       templateName: 'producto',
       fields: {
-        nombre: 'iPhone 15 Pro',
-        precio: '$999',
-        specs: ['128GB', 'Titanio', 'USB-C'],
-        descuento: '20%',
-        codigo: 'FEB20',
-        vigencia: 'Hasta el 31/03',
-        tip: '',
-        badge: 'NUEVO',
+        nombre: '',
+        precio: '',
+        specs: [],
+        descuento: '',
+        codigo: '',
+        vigencia: '',
+        badge: '',
       },
       selectedNetworks: ['instagram'],
       caption: '',
