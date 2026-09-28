@@ -1,8 +1,8 @@
 import Bull from 'bull';
 import 'dotenv/config';
-import { getTokensByUserId, refreshTokenIfNeeded } from '../services/tokenService.js';
+import { refreshTokenIfNeeded } from '../services/tokenService.js';
 import { publishToNetworks, updatePostStatus } from '../services/publishService.js';
-import { incrementPostCount } from '../services/planService.js';
+import { releasePostSlot } from '../services/planService.js';
 import { query } from '../config/db.js';
 
 const QUEUE_NAME = 'postcraft:publish';
@@ -19,13 +19,13 @@ export function getPublishQueue() {
   publishQueue = new Bull(QUEUE_NAME, {
     redis: process.env.REDIS_URL,
     defaultJobOptions: {
-      attempts:  3,
+      attempts: 3,
       backoff: {
-        type:  'exponential',
+        type: 'exponential',
         delay: 10_000,
       },
       removeOnComplete: 100,
-      removeOnFail:     50,
+      removeOnFail: 50,
     },
   });
 
@@ -35,10 +35,7 @@ export function getPublishQueue() {
     console.log(`[publishQueue] Processing job #${job.id} for post ${postId}`);
 
     // 1. Load the post
-    const { rows: postRows } = await query(
-      'SELECT * FROM posts WHERE id = $1',
-      [postId]
-    );
+    const { rows: postRows } = await query('SELECT * FROM posts WHERE id = $1', [postId]);
     const post = postRows[0];
 
     if (!post) {
@@ -60,7 +57,7 @@ export function getPublishQueue() {
     // 3. Publish
     const { fb_post_id, ig_media_id, errors } = await publishToNetworks({
       imageUrl: post.image_url,
-      caption:  post.caption,
+      caption: post.caption,
       networks: post.networks,
       tokens,
     });
@@ -72,15 +69,13 @@ export function getPublishQueue() {
     }
 
     // 4. Update post status
+    // (the post's slot was already reserved by POST /publish at schedule time)
     await updatePostStatus(postId, {
-      status:      'published',
+      status: 'published',
       fb_post_id,
       ig_media_id,
       error_message: errors?.length ? JSON.stringify(errors) : null,
     });
-
-    // 5. Increment monthly counter
-    await incrementPostCount(post.user_id);
 
     console.log(`[publishQueue] Post ${postId} published successfully`);
     return { fb_post_id, ig_media_id };
@@ -92,18 +87,26 @@ export function getPublishQueue() {
   });
 
   publishQueue.on('failed', async (job, err) => {
-    console.error(`[publishQueue] Job #${job.id} failed (attempt ${job.attemptsMade}):`, err.message);
+    console.error(
+      `[publishQueue] Job #${job.id} failed (attempt ${job.attemptsMade}):`,
+      err.message
+    );
 
-    // On final failure, mark the post as failed
+    // On final failure, mark the post as failed and refund its reserved slot
     if (job.attemptsMade >= job.opts.attempts) {
       const { postId } = job.data;
       try {
         await updatePostStatus(postId, {
-          status:        'failed',
+          status: 'failed',
           error_message: err.message,
         });
+
+        const { rows } = await query('SELECT user_id FROM posts WHERE id = $1', [postId]);
+        if (rows[0]) {
+          await releasePostSlot(rows[0].user_id);
+        }
       } catch (dbErr) {
-        console.error('[publishQueue] Could not update post status to failed:', dbErr.message);
+        console.error('[publishQueue] Could not finalise failed post:', dbErr.message);
       }
     }
   });

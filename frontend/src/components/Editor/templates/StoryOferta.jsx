@@ -70,7 +70,9 @@ export default function StoryOferta({ fields: propFields }) {
         }}
       >
         {/* Header */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+        <div
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div
               style={{
@@ -146,7 +148,15 @@ export default function StoryOferta({ fields: propFields }) {
         </div>
 
         {/* Code block */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '32px', width: '100%' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '32px',
+            width: '100%',
+          }}
+        >
           {codigo && (
             <div
               style={{
@@ -156,7 +166,15 @@ export default function StoryOferta({ fields: propFields }) {
                 background: 'rgba(0,255,136,0.04)',
               }}
             >
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '22px', letterSpacing: '4px', textTransform: 'uppercase', marginBottom: '12px' }}>
+              <p
+                style={{
+                  color: 'rgba(255,255,255,0.4)',
+                  fontSize: '22px',
+                  letterSpacing: '4px',
+                  textTransform: 'uppercase',
+                  marginBottom: '12px',
+                }}
+              >
                 Usá el código
               </p>
               <p

@@ -5,12 +5,9 @@ const variants = {
     'bg-brand-green text-brand-dark font-semibold hover:opacity-90 shadow-lg shadow-brand-green/20',
   secondary:
     'bg-white/5 border border-white/10 text-slate-200 hover:border-brand-green/40 hover:text-brand-green',
-  danger:
-    'bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20',
-  ghost:
-    'text-slate-400 hover:text-brand-green hover:bg-brand-surface',
-  outline:
-    'border border-brand-green text-brand-green hover:bg-brand-green hover:text-brand-dark',
+  danger: 'bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20',
+  ghost: 'text-slate-400 hover:text-brand-green hover:bg-brand-surface',
+  outline: 'border border-brand-green text-brand-green hover:bg-brand-green hover:text-brand-dark',
 }
 
 const sizes = {

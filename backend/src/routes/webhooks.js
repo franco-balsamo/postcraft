@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import Stripe from 'stripe';
-import { setUserPlan, saveStripeIds, getUserByStripeCustomer, markPaymentFailed } from '../services/planService.js';
+import {
+  setUserPlan,
+  saveStripeIds,
+  getUserByStripeCustomer,
+  markPaymentFailed,
+} from '../services/planService.js';
 import 'dotenv/config';
 
 export const router = Router();
@@ -24,7 +29,7 @@ router.post('/stripe', async (req, res) => {
   let event;
   try {
     event = stripe.webhooks.constructEvent(
-      req.body,           // must be raw Buffer (express.raw())
+      req.body, // must be raw Buffer (express.raw())
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
@@ -37,13 +42,12 @@ router.post('/stripe', async (req, res) => {
 
   try {
     switch (event.type) {
-
       // ── Payment succeeded → upgrade plan ─────────────────────────────────
       case 'checkout.session.completed': {
         const session = event.data.object;
         if (session.mode !== 'subscription') break;
 
-        const userId  = session.metadata?.userId;
+        const userId = session.metadata?.userId;
         const newPlan = session.metadata?.newPlan;
 
         if (!userId || !newPlan) {
@@ -53,7 +57,7 @@ router.post('/stripe', async (req, res) => {
 
         await setUserPlan(userId, newPlan);
         await saveStripeIds(userId, {
-          customerId:     session.customer,
+          customerId: session.customer,
           subscriptionId: session.subscription,
         });
 
@@ -64,19 +68,19 @@ router.post('/stripe', async (req, res) => {
       // ── Subscription activated (covers first invoice) ─────────────────────
       case 'customer.subscription.created':
       case 'customer.subscription.updated': {
-        const sub    = event.data.object;
+        const sub = event.data.object;
         const status = sub.status; // active, trialing, past_due, canceled, etc.
 
         if (status !== 'active' && status !== 'trialing') break;
 
         const newPlan = sub.metadata?.newPlan;
-        const userId  = sub.metadata?.userId;
+        const userId = sub.metadata?.userId;
 
         if (!userId || !newPlan) break;
 
         await setUserPlan(userId, newPlan);
         await saveStripeIds(userId, {
-          customerId:     sub.customer,
+          customerId: sub.customer,
           subscriptionId: sub.id,
         });
         break;
@@ -84,7 +88,7 @@ router.post('/stripe', async (req, res) => {
 
       // ── Subscription cancelled / payment failed → downgrade to free ───────
       case 'customer.subscription.deleted': {
-        const sub    = event.data.object;
+        const sub = event.data.object;
         const userId = sub.metadata?.userId;
 
         if (userId) {
@@ -103,7 +107,7 @@ router.post('/stripe', async (req, res) => {
 
       // ── Invoice payment failed ────────────────────────────────────────────
       case 'invoice.payment_failed': {
-        const invoice    = event.data.object;
+        const invoice = event.data.object;
         const customerId = invoice.customer;
 
         const user = await getUserByStripeCustomer(customerId);
@@ -117,13 +121,13 @@ router.post('/stripe', async (req, res) => {
       // ── Invoice paid (recurring renewal) ─────────────────────────────────
       case 'invoice.paid': {
         const invoice = event.data.object;
-        const sub     = invoice.subscription;
+        const sub = invoice.subscription;
 
         if (!sub) break;
 
         // Ensure the plan remains active on successful renewal
         const stripeSubscription = await stripe.subscriptions.retrieve(sub);
-        const userId  = stripeSubscription.metadata?.userId;
+        const userId = stripeSubscription.metadata?.userId;
         const newPlan = stripeSubscription.metadata?.newPlan;
 
         if (userId && newPlan) {

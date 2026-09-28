@@ -33,17 +33,22 @@ export default function Input({
         )}
         {...props}
       />
-      {error && (
-        <p className="text-xs text-red-400">{error}</p>
-      )}
-      {hint && !error && (
-        <p className="text-xs text-slate-400">{hint}</p>
-      )}
+      {error && <p className="text-xs text-red-400">{error}</p>}
+      {hint && !error && <p className="text-xs text-slate-400">{hint}</p>}
     </div>
   )
 }
 
-export function Textarea({ label, error, hint, className = '', inputClassName = '', rows = 4, id, ...props }) {
+export function Textarea({
+  label,
+  error,
+  hint,
+  className = '',
+  inputClassName = '',
+  rows = 4,
+  id,
+  ...props
+}) {
   const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined)
 
   return (

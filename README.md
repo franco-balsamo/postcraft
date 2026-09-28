@@ -98,7 +98,7 @@ Auth vía Bearer token o cookie HTTP-only (se setea en login/OAuth).
 
 ## Producción
 
-Usar `docker-compose.yml` (sin puertos de DB expuestos al host).
+Usar `docker-compose.yml` (sin puertos de DB expuestos al host). Levanta Postgres, Redis, el backend (`:3000`) y el frontend servido como estático vía nginx (`:80`).
 
 ```bash
 docker compose up --build -d
@@ -107,10 +107,11 @@ docker compose up --build -d
 Checklist antes de deployar:
 - Secrets generados con `openssl rand -hex 64`
 - `CORS_ORIGIN` apuntando al dominio real
+- `VITE_API_URL` apuntando a la URL pública del backend (se hornea en el build del frontend, no es una env var de runtime)
 - Claves live de Stripe
 - Webhook configurado en el dashboard de Stripe
 - Callback URL registrada en Meta for Developers
-- HTTPS con reverse proxy (nginx / caddy)
+- HTTPS con reverse proxy (nginx / caddy) delante de ambos servicios
 
 ---
 
@@ -121,8 +122,8 @@ backend/
   src/
     routes/      auth, publish, posts, plans, webhooks
     services/    publishService, tokenService, planService, scheduleService
-    middleware/  auth (JWT + cookie), errorHandler
-    config/      db, redis, cloudinary
+    middleware/  auth (JWT + cookie), errorHandler, rateLimiter
+    config/      db, cloudinary
     jobs/        publishQueue (Bull processor)
   migrations/    001_init.sql
 

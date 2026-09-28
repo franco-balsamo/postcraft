@@ -107,14 +107,25 @@ export default function StoryProducto({ fields: propFields }) {
               borderRadius: '100px',
             }}
           >
-            <span style={{ color: '#0a0e1a', fontWeight: 900, fontSize: '22px', letterSpacing: '2px' }}>
+            <span
+              style={{ color: '#0a0e1a', fontWeight: 900, fontSize: '22px', letterSpacing: '2px' }}
+            >
               {badge || 'NUEVO'}
             </span>
           </div>
         </div>
 
         {/* Center content */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '48px', padding: '60px 0' }}>
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            gap: '48px',
+            padding: '60px 0',
+          }}
+        >
           {/* Label */}
           <p
             style={{
@@ -204,7 +215,9 @@ export default function StoryProducto({ fields: propFields }) {
                       flexShrink: 0,
                     }}
                   />
-                  <span style={{ color: '#e2e8f0', fontSize: '28px', fontWeight: 500 }}>{spec}</span>
+                  <span style={{ color: '#e2e8f0', fontSize: '28px', fontWeight: 500 }}>
+                    {spec}
+                  </span>
                 </div>
               ))}
             </div>
@@ -227,9 +240,7 @@ export default function StoryProducto({ fields: propFields }) {
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '22px', marginBottom: '6px' }}>
               Disponible ahora
             </p>
-            <p style={{ color: '#ffffff', fontSize: '32px', fontWeight: 700 }}>
-              Desliza para ver
-            </p>
+            <p style={{ color: '#ffffff', fontSize: '32px', fontWeight: 700 }}>Desliza para ver</p>
           </div>
           <div
             style={{

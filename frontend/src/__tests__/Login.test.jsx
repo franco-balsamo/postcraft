@@ -58,7 +58,10 @@ describe('Login', () => {
 
   it('llama al api login con los datos correctos', async () => {
     const { login } = await import('../api/auth')
-    login.mockResolvedValueOnce({ token: 'tok', user: { id: '1', email: 'test@test.com', plan: 'free' } })
+    login.mockResolvedValueOnce({
+      token: 'tok',
+      user: { id: '1', email: 'test@test.com', plan: 'free' },
+    })
 
     renderLogin()
     await userEvent.type(screen.getByLabelText(/email/i), 'test@test.com')

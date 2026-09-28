@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 const useAuthStore = create(
   persist(
@@ -8,7 +8,7 @@ const useAuthStore = create(
       token: null,
 
       setAuth: (user, token) => {
-        localStorage.setItem('postcraft_token', token)
+        window.localStorage.setItem('postcraft_token', token)
         set({ user, token })
       },
 
@@ -18,13 +18,14 @@ const useAuthStore = create(
         })),
 
       logout: () => {
-        localStorage.removeItem('postcraft_token')
-        localStorage.removeItem('postcraft_user')
+        window.localStorage.removeItem('postcraft_token')
+        window.localStorage.removeItem('postcraft_user')
         set({ user: null, token: null })
       },
     }),
     {
       name: 'postcraft_auth',
+      storage: createJSONStorage(() => window.localStorage),
       partialize: (state) => ({ user: state.user, token: state.token }),
     }
   )

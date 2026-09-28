@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { connectMeta, updateProfile, getProfile } from '../api/auth'
+import { connectMeta, getProfile, updateProfile } from '../api/auth'
 import { getPlans, upgradePlan, openBillingPortal } from '../api/plans'
 import useAuthStore from '../store/authStore'
 import Button from '../components/UI/Button'
@@ -13,10 +13,10 @@ import Badge from '../components/UI/Badge'
 // Everything else (price, limits, features) comes from GET /plans — the
 // `plan_limits` DB table is the single source of truth for that data.
 const PLAN_DISPLAY = {
-  free:    { color: 'gray' },
+  free: { color: 'gray' },
   starter: { color: 'cyan' },
-  pro:     { color: 'cyan' },
-  agency:  { color: 'purple' },
+  pro: { color: 'cyan' },
+  agency: { color: 'purple' },
 }
 
 function planFeatures(plan) {
@@ -45,6 +45,15 @@ export default function Settings() {
 
   const { data: plansData } = useQuery({ queryKey: ['plans'], queryFn: getPlans })
   const plans = plansData?.plans || []
+
+  // The store only has whatever was cached at login/OAuth — refresh it here
+  // so plan usage and Meta connection status don't go stale for the rest
+  // of the session (e.g. after publishing a post or connecting an account).
+  const { data: profileData } = useQuery({ queryKey: ['profile'], queryFn: getProfile })
+  useEffect(() => {
+    if (profileData?.user) updateUser(profileData.user)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileData])
 
   const [profileForm, setProfileForm] = useState({
     name: user?.name || '',
@@ -140,7 +149,9 @@ export default function Settings() {
               <div>
                 <p className="text-sm font-medium text-white">Instagram</p>
                 <p className="text-xs text-slate-400">
-                  {user?.instagramConnected ? `@${user.instagramUsername || 'conectado'}` : 'No conectado'}
+                  {user?.instagramConnected
+                    ? `@${user.instagramUsername || 'conectado'}`
+                    : 'No conectado'}
                 </p>
               </div>
             </div>
@@ -175,8 +186,12 @@ export default function Settings() {
             fullWidth
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+              />
             </svg>
             Conectar con Meta (Facebook / Instagram)
           </Button>
@@ -190,10 +205,7 @@ export default function Settings() {
       </Section>
 
       {/* Plan */}
-      <Section
-        title="Plan actual"
-        desc="Elegí el plan que mejor se adapte a tus necesidades"
-      >
+      <Section title="Plan actual" desc="Elegí el plan que mejor se adapte a tus necesidades">
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           {plans.map((plan) => {
             const isCurrent = (user?.plan || 'free') === plan.name
@@ -214,9 +226,7 @@ export default function Settings() {
               <div
                 key={plan.name}
                 className={`relative rounded-2xl border p-4 ${
-                  isCurrent
-                    ? `${colorBorder} bg-brand-dark`
-                    : 'border-white/10 bg-black/10'
+                  isCurrent ? `${colorBorder} bg-brand-dark` : 'border-white/10 bg-black/10'
                 } transition-all`}
               >
                 <div className="mb-3">
@@ -293,10 +303,7 @@ export default function Settings() {
       </Section>
 
       {/* Profile */}
-      <Section
-        title="Perfil"
-        desc="Actualiza tu información de cuenta"
-      >
+      <Section title="Perfil" desc="Actualiza tu información de cuenta">
         <form onSubmit={handleProfileSubmit} className="space-y-4">
           {profileSuccess && (
             <div className="p-3 rounded-xl bg-brand-green/10 border border-brand-green/30 text-brand-green text-sm">
@@ -348,11 +355,7 @@ export default function Settings() {
             </div>
           </div>
 
-          <Button
-            type="submit"
-            loading={profileMutation.isPending}
-            variant="secondary"
-          >
+          <Button type="submit" loading={profileMutation.isPending} variant="secondary">
             Guardar cambios
           </Button>
         </form>

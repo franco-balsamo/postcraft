@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { getDashboardStats, getPosts } from '../api/posts'
+import { getPosts } from '../api/posts'
 import { getPlans } from '../api/plans'
 import useAuthStore from '../store/authStore'
 import Button from '../components/UI/Button'
@@ -39,13 +39,15 @@ export default function Dashboard() {
   const planLimit = planDef ? (planDef.monthlyPosts ?? Infinity) : undefined
   const postsUsed = user?.postsThisMonth || 0
   const postsLeft =
-    planLimit === undefined ? undefined : planLimit === Infinity ? '∞' : Math.max(0, planLimit - postsUsed)
+    planLimit === undefined
+      ? undefined
+      : planLimit === Infinity
+        ? '∞'
+        : Math.max(0, planLimit - postsUsed)
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['dashboard-stats'],
-    queryFn: getDashboardStats,
-    retry: false,
-  })
+  // Derived from the profile (kept fresh via Settings' /auth/me refetch) —
+  // there's no separate stats endpoint on the backend.
+  const connectedNetworks = Number(!!user?.instagramConnected) + Number(!!user?.facebookConnected)
 
   const { data: recentData, isLoading: postsLoading } = useQuery({
     queryKey: ['posts', { page: 1 }],
@@ -63,9 +65,7 @@ export default function Dashboard() {
           <h2 className="text-xl font-bold text-white">
             Hola, {user?.name || user?.email?.split('@')[0]} 👋
           </h2>
-          <p className="text-slate-400 text-sm mt-0.5">
-            Acá está el resumen de tu actividad
-          </p>
+          <p className="text-slate-400 text-sm mt-0.5">Acá está el resumen de tu actividad</p>
         </div>
         <Button onClick={() => navigate('/editor')} size="lg" className="self-start sm:self-auto">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -86,7 +86,13 @@ export default function Dashboard() {
         />
         <StatCard
           label="Posts restantes"
-          value={statsLoading || postsLeft === undefined ? '...' : (typeof postsLeft === 'number' ? postsLeft : '∞')}
+          value={
+            statsLoading || postsLeft === undefined
+              ? '...'
+              : typeof postsLeft === 'number'
+                ? postsLeft
+                : '∞'
+          }
           sub="en tu plan actual"
           icon="⚡"
           color="blue"
@@ -131,11 +137,7 @@ export default function Dashboard() {
                 <p className="text-xs text-yellow-400">
                   ¡Solo te quedan {planLimit - postsUsed} posts! Considera hacer upgrade.
                 </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/settings')}
-                >
+                <Button variant="outline" size="sm" onClick={() => navigate('/settings')}>
                   Upgrade
                 </Button>
               </div>
@@ -147,76 +149,96 @@ export default function Dashboard() {
       {/* Recent posts */}
       <div className="rounded-3xl bg-white/5 border border-white/10 p-1.5">
         <div className="rounded-[1.35rem] bg-brand-surface/80 backdrop-blur-xl overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
-        <div className="p-5 border-b border-white/5 flex items-center justify-between">
-          <h3 className="font-semibold text-white">Posts recientes</h3>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/posts')}>
-            Ver todos →
-          </Button>
-        </div>
+          <div className="p-5 border-b border-white/5 flex items-center justify-between">
+            <h3 className="font-semibold text-white">Posts recientes</h3>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/posts')}>
+              Ver todos →
+            </Button>
+          </div>
 
-        {postsLoading ? (
-          <div className="p-8 text-center text-slate-400">
-            <div className="inline-flex items-center gap-2">
-              <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              Cargando posts...
+          {postsLoading ? (
+            <div className="p-8 text-center text-slate-400">
+              <div className="inline-flex items-center gap-2">
+                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+                Cargando posts...
+              </div>
             </div>
-          </div>
-        ) : recentPosts.length === 0 ? (
-          <div className="p-12 text-center">
-            <p className="text-4xl mb-3">🎨</p>
-            <p className="text-slate-400 font-medium mb-1">Todavía no creaste ningún post</p>
-            <p className="text-slate-600 text-sm mb-4">
-              Empieza creando tu primer diseño
-            </p>
-            <Button onClick={() => navigate('/editor')}>Crear primer post</Button>
-          </div>
-        ) : (
-          <div className="divide-y divide-white/5">
-            {recentPosts.map((post) => (
-              <div key={post.id || post._id} className="p-4 flex items-center gap-4 hover:bg-white/[0.03] transition-colors duration-300">
-                {/* Thumbnail */}
-                <div className="w-12 h-12 rounded-xl bg-black/20 border border-white/10 flex items-center justify-center flex-shrink-0">
-                  {post.thumbnailUrl ? (
-                    <img src={post.thumbnailUrl} alt="" className="w-full h-full object-cover rounded-lg" />
-                  ) : (
-                    <span className="text-lg">{post.templateType === 'story' ? '▯' : '□'}</span>
+          ) : recentPosts.length === 0 ? (
+            <div className="p-12 text-center">
+              <p className="text-4xl mb-3">🎨</p>
+              <p className="text-slate-400 font-medium mb-1">Todavía no creaste ningún post</p>
+              <p className="text-slate-600 text-sm mb-4">Empieza creando tu primer diseño</p>
+              <Button onClick={() => navigate('/editor')}>Crear primer post</Button>
+            </div>
+          ) : (
+            <div className="divide-y divide-white/5">
+              {recentPosts.map((post) => (
+                <div
+                  key={post.id || post._id}
+                  className="p-4 flex items-center gap-4 hover:bg-white/[0.03] transition-colors duration-300"
+                >
+                  {/* Thumbnail */}
+                  <div className="w-12 h-12 rounded-xl bg-black/20 border border-white/10 flex items-center justify-center flex-shrink-0">
+                    {post.thumbnailUrl ? (
+                      <img
+                        src={post.thumbnailUrl}
+                        alt=""
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    ) : (
+                      <span className="text-lg">{post.templateType === 'story' ? '▯' : '□'}</span>
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-slate-300 truncate">
+                      {post.caption || `${post.templateType} · ${post.templateName}`}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <Badge status={post.status} className="text-xs">
+                        {post.status === 'published'
+                          ? 'Publicado'
+                          : post.status === 'scheduled'
+                            ? 'Programado'
+                            : post.status || 'Borrador'}
+                      </Badge>
+                      <span className="text-xs text-slate-600">
+                        {post.publishedAt
+                          ? new Date(post.publishedAt).toLocaleDateString('es-AR')
+                          : '—'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Networks */}
+                  {post.networks?.length > 0 && (
+                    <div className="flex gap-1 flex-shrink-0">
+                      {post.networks.map((n) => (
+                        <span key={n} className="text-sm" title={n}>
+                          {n === 'instagram' ? '📷' : '👤'}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-300 truncate">
-                    {post.caption || `${post.templateType} · ${post.templateName}`}
-                  </p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <Badge status={post.status} className="text-xs">
-                      {post.status === 'published' ? 'Publicado' : post.status === 'scheduled' ? 'Programado' : post.status || 'Borrador'}
-                    </Badge>
-                    <span className="text-xs text-slate-600">
-                      {post.publishedAt
-                        ? new Date(post.publishedAt).toLocaleDateString('es-AR')
-                        : '—'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Networks */}
-                {post.networks?.length > 0 && (
-                  <div className="flex gap-1 flex-shrink-0">
-                    {post.networks.map((n) => (
-                      <span key={n} className="text-sm" title={n}>
-                        {n === 'instagram' ? '📷' : '👤'}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 import useEditorStore from '../../../store/editorStore'
 
-export default function PostProducto({ fields: propFields, preview = false }) {
+export default function PostProducto({ fields: propFields }) {
   const storeFields = useEditorStore((s) => s.fields)
   const fields = propFields || storeFields
 
@@ -119,7 +119,15 @@ export default function PostProducto({ fields: propFields, preview = false }) {
         </div>
 
         {/* Center: product name + price */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '32px' }}>
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            gap: '32px',
+          }}
+        >
           {/* Product name */}
           <div>
             <p

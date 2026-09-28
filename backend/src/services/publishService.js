@@ -13,7 +13,10 @@ const GRAPH_URL = 'https://graph.facebook.com/v18.0';
  */
 export async function uploadImage(base64Data, folder = 'postcraft') {
   if (!cloudinaryEnabled) {
-    throw createError(503, 'Image upload is not configured. Set CLOUDINARY_* environment variables.');
+    throw createError(
+      503,
+      'Image upload is not configured. Set CLOUDINARY_* environment variables.'
+    );
   }
 
   // Accept both raw base64 and data URI format
@@ -24,13 +27,13 @@ export async function uploadImage(base64Data, folder = 'postcraft') {
   const result = await cloudinary.uploader.upload(dataUri, {
     folder,
     resource_type: 'image',
-    format:        'jpg',
-    quality:       'auto:good',
-    fetch_format:  'auto',
+    format: 'jpg',
+    quality: 'auto:good',
+    fetch_format: 'auto',
   });
 
   return {
-    url:         result.secure_url,
+    url: result.secure_url,
     cloudinaryId: result.public_id,
   };
 }
@@ -57,17 +60,13 @@ export async function publishToInstagram(imageUrl, caption, igUserId, accessToke
   }
 
   // Step 1 – create container
-  const containerRes = await axios.post(
-    `${GRAPH_URL}/${igUserId}/media`,
-    null,
-    {
-      params: {
-        image_url:    imageUrl,
-        caption,
-        access_token: accessToken,
-      },
-    }
-  );
+  const containerRes = await axios.post(`${GRAPH_URL}/${igUserId}/media`, null, {
+    params: {
+      image_url: imageUrl,
+      caption,
+      access_token: accessToken,
+    },
+  });
 
   const creationId = containerRes.data?.id;
   if (!creationId) {
@@ -77,16 +76,12 @@ export async function publishToInstagram(imageUrl, caption, igUserId, accessToke
   // Step 2 – wait briefly then publish
   await waitForContainerReady(igUserId, creationId, accessToken);
 
-  const publishRes = await axios.post(
-    `${GRAPH_URL}/${igUserId}/media_publish`,
-    null,
-    {
-      params: {
-        creation_id:  creationId,
-        access_token: accessToken,
-      },
-    }
-  );
+  const publishRes = await axios.post(`${GRAPH_URL}/${igUserId}/media_publish`, null, {
+    params: {
+      creation_id: creationId,
+      access_token: accessToken,
+    },
+  });
 
   const mediaId = publishRes.data?.id;
   if (!mediaId) {
@@ -105,17 +100,13 @@ export async function publishStoryInstagram(imageUrl, igUserId, accessToken) {
     throw createError(400, 'Missing igUserId or accessToken for Instagram Story publish');
   }
 
-  const containerRes = await axios.post(
-    `${GRAPH_URL}/${igUserId}/media`,
-    null,
-    {
-      params: {
-        image_url:    imageUrl,
-        media_type:   'STORIES',
-        access_token: accessToken,
-      },
-    }
-  );
+  const containerRes = await axios.post(`${GRAPH_URL}/${igUserId}/media`, null, {
+    params: {
+      image_url: imageUrl,
+      media_type: 'STORIES',
+      access_token: accessToken,
+    },
+  });
 
   const creationId = containerRes.data?.id;
   if (!creationId) {
@@ -124,16 +115,12 @@ export async function publishStoryInstagram(imageUrl, igUserId, accessToken) {
 
   await waitForContainerReady(igUserId, creationId, accessToken);
 
-  const publishRes = await axios.post(
-    `${GRAPH_URL}/${igUserId}/media_publish`,
-    null,
-    {
-      params: {
-        creation_id:  creationId,
-        access_token: accessToken,
-      },
-    }
-  );
+  const publishRes = await axios.post(`${GRAPH_URL}/${igUserId}/media_publish`, null, {
+    params: {
+      creation_id: creationId,
+      access_token: accessToken,
+    },
+  });
 
   return publishRes.data?.id;
 }
@@ -173,18 +160,14 @@ export async function publishToFacebook(imageUrl, caption, pageId, pageAccessTok
     throw createError(400, 'Missing pageId or pageAccessToken for Facebook publish');
   }
 
-  const { data } = await axios.post(
-    `${GRAPH_URL}/${pageId}/photos`,
-    null,
-    {
-      params: {
-        url:          imageUrl,
-        caption,
-        access_token: pageAccessToken,
-        published:    true,
-      },
-    }
-  );
+  const { data } = await axios.post(`${GRAPH_URL}/${pageId}/photos`, null, {
+    params: {
+      url: imageUrl,
+      caption,
+      access_token: pageAccessToken,
+      published: true,
+    },
+  });
 
   const postId = data?.post_id || data?.id;
   if (!postId) {
@@ -204,16 +187,12 @@ export async function publishStoryFacebook(imageUrl, pageId, pageAccessToken) {
   }
 
   // Upload to FB photo stories endpoint
-  const { data } = await axios.post(
-    `${GRAPH_URL}/${pageId}/photo_stories`,
-    null,
-    {
-      params: {
-        url:          imageUrl,
-        access_token: pageAccessToken,
-      },
-    }
-  );
+  const { data } = await axios.post(`${GRAPH_URL}/${pageId}/photo_stories`, null, {
+    params: {
+      url: imageUrl,
+      access_token: pageAccessToken,
+    },
+  });
 
   return data?.post_id || data?.id;
 }
@@ -232,33 +211,35 @@ export async function publishStoryFacebook(imageUrl, pageId, pageAccessToken) {
  */
 export async function publishToNetworks({ imageUrl, caption, networks, tokens }) {
   const results = { fb_post_id: null, ig_media_id: null };
-  const errors  = [];
+  const errors = [];
 
   for (const network of networks) {
     try {
       switch (network) {
         case 'instagram':
           results.ig_media_id = await publishToInstagram(
-            imageUrl, caption, tokens.ig_user_id, tokens.user_access_token
+            imageUrl,
+            caption,
+            tokens.ig_user_id,
+            tokens.user_access_token
           );
           break;
 
         case 'ig_story':
-          await publishStoryInstagram(
-            imageUrl, tokens.ig_user_id, tokens.user_access_token
-          );
+          await publishStoryInstagram(imageUrl, tokens.ig_user_id, tokens.user_access_token);
           break;
 
         case 'facebook':
           results.fb_post_id = await publishToFacebook(
-            imageUrl, caption, tokens.page_id, tokens.page_access_token
+            imageUrl,
+            caption,
+            tokens.page_id,
+            tokens.page_access_token
           );
           break;
 
         case 'fb_story':
-          await publishStoryFacebook(
-            imageUrl, tokens.page_id, tokens.page_access_token
-          );
+          await publishStoryFacebook(imageUrl, tokens.page_id, tokens.page_access_token);
           break;
 
         default:

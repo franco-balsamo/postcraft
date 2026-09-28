@@ -40,11 +40,7 @@ app.use(cookieParser());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // stripe needs raw body before json parser
-app.use(
-  '/api/webhooks/stripe',
-  express.raw({ type: 'application/json' }),
-  webhooksRouter
-);
+app.use('/api/webhooks/stripe', express.raw({ type: 'application/json' }), webhooksRouter);
 
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -77,8 +73,6 @@ async function shutdown(signal) {
       await closePublishQueue();
       const { pool } = await import('./config/db.js');
       await pool.end();
-      const redis = (await import('./config/redis.js')).default;
-      await redis.quit();
       process.exit(0);
     } catch (err) {
       console.error('Error during shutdown:', err.message);

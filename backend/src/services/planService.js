@@ -1,4 +1,4 @@
-import { query, withTransaction } from '../config/db.js';
+import { query } from '../config/db.js';
 import { createError } from '../middleware/errorHandler.js';
 import 'dotenv/config';
 
@@ -6,10 +6,10 @@ import 'dotenv/config';
 // `plan_limits` (see migrations/001_init.sql + 002_plan_limits_display.sql)
 // is the single source of truth; keep these numbers mirrored to that seed.
 const FALLBACK_LIMITS = {
-  free:    5,
+  free: 5,
   starter: 50,
-  pro:     200,
-  agency:  1000,
+  pro: 200,
+  agency: 1000,
 };
 
 /**
@@ -17,10 +17,7 @@ const FALLBACK_LIMITS = {
  */
 export async function getPlanLimit(plan) {
   try {
-    const { rows } = await query(
-      'SELECT monthly_posts FROM plan_limits WHERE plan = $1',
-      [plan]
-    );
+    const { rows } = await query('SELECT monthly_posts FROM plan_limits WHERE plan = $1', [plan]);
     if (rows[0]) return rows[0].monthly_posts;
   } catch {
     // fall through to fallback
@@ -33,9 +30,7 @@ export async function getPlanLimit(plan) {
  * Returns all available plans with their details.
  */
 export async function getAllPlans() {
-  const { rows } = await query(
-    'SELECT * FROM plan_limits ORDER BY price_monthly ASC'
-  );
+  const { rows } = await query('SELECT * FROM plan_limits ORDER BY price_monthly ASC');
   return rows;
 }
 
@@ -43,60 +38,58 @@ export async function getAllPlans() {
  * Returns a single plan's full row (limits + display fields), or null.
  */
 export async function getPlanDetails(plan) {
-  const { rows } = await query(
-    'SELECT * FROM plan_limits WHERE plan = $1',
-    [plan]
-  );
+  const { rows } = await query('SELECT * FROM plan_limits WHERE plan = $1', [plan]);
   return rows[0] || null;
 }
 
 /**
- * Check whether a user is allowed to publish another post this month.
- * Throws 402 if they have reached their limit.
+ * Atomically reserve one post slot for the user's current billing cycle.
+ * Auto-resets the monthly counter if a new billing month has started.
+ * Throws 402 if the user has no slots left, 404 if the user doesn't exist.
+ *
+ * The check-and-increment happens in a single UPDATE so two concurrent
+ * publish requests can't both pass the check before either one counts
+ * against the limit. Call releasePostSlot() to refund the slot if the
+ * publish this was reserved for ends up failing.
  */
-export async function checkPlanLimit(userId) {
-  const { rows } = await query(
-    'SELECT plan, posts_this_month, billing_cycle_start FROM users WHERE id = $1',
-    [userId]
-  );
+export async function reservePostSlot(userId) {
+  const { rows: userRows } = await query('SELECT plan FROM users WHERE id = $1', [userId]);
 
-  if (!rows[0]) {
+  if (!userRows[0]) {
     throw createError(404, 'User not found');
   }
 
-  const { plan, posts_this_month, billing_cycle_start } = rows[0];
+  const { plan } = userRows[0];
+  const limit = await getPlanLimit(plan); // null = unlimited (Agency plan)
 
-  // Auto-reset if we are in a new billing month
-  const cycleStart = new Date(billing_cycle_start);
   const now = new Date();
   const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  if (cycleStart < startOfCurrentMonth) {
-    await query(
-      'UPDATE users SET posts_this_month = 0, billing_cycle_start = $1 WHERE id = $2',
-      [startOfCurrentMonth, userId]
-    );
-    return; // reset happened, count is now 0
-  }
+  const { rows } = await query(
+    `UPDATE users
+     SET posts_this_month = CASE WHEN billing_cycle_start < $2 THEN 1 ELSE posts_this_month + 1 END,
+         billing_cycle_start = CASE WHEN billing_cycle_start < $2 THEN $2 ELSE billing_cycle_start END
+     WHERE id = $1
+       AND (billing_cycle_start < $2 OR $3::int IS NULL OR posts_this_month < $3)
+     RETURNING posts_this_month`,
+    [userId, startOfCurrentMonth, limit]
+  );
 
-  const limit = await getPlanLimit(plan);
-
-  // null limit means unlimited (Agency plan)
-  if (limit !== null && posts_this_month >= limit) {
+  if (rows.length === 0) {
     throw createError(
       402,
-      `Monthly post limit reached (${posts_this_month}/${limit}) for plan "${plan}". Please upgrade to continue publishing.`
+      `Monthly post limit reached (${limit}/${limit}) for plan "${plan}". Please upgrade to continue publishing.`
     );
   }
 }
 
 /**
- * Atomically increment the post counter for a user.
- * Should be called after a successful publish.
+ * Refund a post slot previously granted by reservePostSlot(), e.g. because
+ * the publish it was reserved for ultimately failed. Never goes below 0.
  */
-export async function incrementPostCount(userId) {
+export async function releasePostSlot(userId) {
   await query(
-    'UPDATE users SET posts_this_month = posts_this_month + 1 WHERE id = $1',
+    'UPDATE users SET posts_this_month = GREATEST(posts_this_month - 1, 0) WHERE id = $1',
     [userId]
   );
 }
@@ -131,10 +124,10 @@ export async function setUserPlan(userId, newPlan) {
     throw createError(400, `Invalid plan: ${newPlan}`);
   }
 
-  const { rows } = await query(
-    'UPDATE users SET plan = $1 WHERE id = $2 RETURNING id, plan',
-    [newPlan, userId]
-  );
+  const { rows } = await query('UPDATE users SET plan = $1 WHERE id = $2 RETURNING id, plan', [
+    newPlan,
+    userId,
+  ]);
 
   if (!rows[0]) {
     throw createError(404, 'User not found');
@@ -160,10 +153,9 @@ export async function saveStripeIds(userId, { customerId, subscriptionId }) {
  * Find a user by Stripe customer ID.
  */
 export async function getUserByStripeCustomer(stripeCustomerId) {
-  const { rows } = await query(
-    'SELECT * FROM users WHERE stripe_customer_id = $1 LIMIT 1',
-    [stripeCustomerId]
-  );
+  const { rows } = await query('SELECT * FROM users WHERE stripe_customer_id = $1 LIMIT 1', [
+    stripeCustomerId,
+  ]);
   return rows[0] || null;
 }
 
@@ -172,8 +164,5 @@ export async function getUserByStripeCustomer(stripeCustomerId) {
  * Called on invoice.payment_failed (true) and invoice.paid (false).
  */
 export async function markPaymentFailed(userId, failed) {
-  await query(
-    'UPDATE users SET payment_failed = $1 WHERE id = $2',
-    [Boolean(failed), userId]
-  );
+  await query('UPDATE users SET payment_failed = $1 WHERE id = $2', [Boolean(failed), userId]);
 }

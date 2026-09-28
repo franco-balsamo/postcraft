@@ -81,7 +81,9 @@ export default function PostOferta({ fields: propFields }) {
         }}
       >
         {/* Top label */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+        <div
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}
+        >
           <p
             style={{
               color: 'rgba(255,255,255,0.5)',
@@ -144,7 +146,15 @@ export default function PostOferta({ fields: propFields }) {
         </div>
 
         {/* Code + vigencia */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', width: '100%' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '24px',
+            width: '100%',
+          }}
+        >
           {codigo && (
             <div
               style={{
@@ -159,7 +169,14 @@ export default function PostOferta({ fields: propFields }) {
                 position: 'relative',
               }}
             >
-              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '18px', letterSpacing: '4px', textTransform: 'uppercase' }}>
+              <p
+                style={{
+                  color: 'rgba(255,255,255,0.5)',
+                  fontSize: '18px',
+                  letterSpacing: '4px',
+                  textTransform: 'uppercase',
+                }}
+              >
                 Código de descuento
               </p>
               <p

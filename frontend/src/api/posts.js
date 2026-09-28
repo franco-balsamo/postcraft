@@ -7,27 +7,19 @@ export const getPosts = async ({ page = 1, status = 'all' } = {}) => {
   return data
 }
 
-export const createPost = async (payload) => {
-  const { data } = await client.post('/api/posts', payload)
-  return data
-}
-
 export const deletePost = async (id) => {
   const { data } = await client.delete(`/api/posts/${id}`)
   return data
 }
 
+// Both immediate and scheduled publishing go through the same backend
+// endpoint — it branches on whether `scheduledAt` is present in the payload.
 export const publishPost = async (payload) => {
-  const { data } = await client.post('/api/posts/publish', payload)
+  const { data } = await client.post('/api/publish', payload)
   return data
 }
 
 export const schedulePost = async (payload) => {
-  const { data } = await client.post('/api/posts/schedule', payload)
-  return data
-}
-
-export const getDashboardStats = async () => {
-  const { data } = await client.get('/api/posts/stats')
+  const { data } = await client.post('/api/publish', payload)
   return data
 }

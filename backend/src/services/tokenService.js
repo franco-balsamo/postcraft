@@ -9,10 +9,7 @@ const GRAPH_URL = 'https://graph.facebook.com/v18.0';
  * Returns null if no tokens are saved yet.
  */
 export async function getTokensByUserId(userId) {
-  const { rows } = await query(
-    'SELECT * FROM meta_tokens WHERE user_id = $1 LIMIT 1',
-    [userId]
-  );
+  const { rows } = await query('SELECT * FROM meta_tokens WHERE user_id = $1 LIMIT 1', [userId]);
   return rows[0] || null;
 }
 
@@ -71,9 +68,9 @@ export async function saveTokens(userId, data) {
 export async function exchangeForLongLivedToken(shortLivedToken) {
   const url = `${GRAPH_URL}/oauth/access_token`;
   const params = {
-    grant_type:        'fb_exchange_token',
-    client_id:         process.env.META_APP_ID,
-    client_secret:     process.env.META_APP_SECRET,
+    grant_type: 'fb_exchange_token',
+    client_id: process.env.META_APP_ID,
+    client_secret: process.env.META_APP_SECRET,
     fb_exchange_token: shortLivedToken,
   };
 
@@ -116,7 +113,7 @@ export async function refreshTokenIfNeeded(userId) {
     const updated = await saveTokens(userId, {
       ...tokens,
       user_access_token: refreshed.access_token,
-      token_expires_at:  newExpiry,
+      token_expires_at: newExpiry,
     });
     return updated;
   } catch (err) {
@@ -133,16 +130,16 @@ export async function refreshTokenIfNeeded(userId) {
 export async function fetchPagesAndIgAccounts(userAccessToken) {
   const { data } = await axios.get(`${GRAPH_URL}/me/accounts`, {
     params: {
-      fields:       'id,name,access_token,instagram_business_account{id,username}',
+      fields: 'id,name,access_token,instagram_business_account{id,username}',
       access_token: userAccessToken,
     },
   });
 
   return (data.data || []).map((page) => ({
-    page_id:           page.id,
-    page_name:         page.name,
+    page_id: page.id,
+    page_name: page.name,
     page_access_token: page.access_token,
-    ig_user_id:        page.instagram_business_account?.id || null,
-    ig_username:       page.instagram_business_account?.username || null,
+    ig_user_id: page.instagram_business_account?.id || null,
+    ig_username: page.instagram_business_account?.username || null,
   }));
 }

@@ -53,7 +53,10 @@ export async function withTransaction(fn) {
 
 export async function runMigrations() {
   const migrationsDir = path.resolve(__dirname, '../../migrations');
-  const files = fs.readdirSync(migrationsDir).filter((f) => f.endsWith('.sql')).sort();
+  const files = fs
+    .readdirSync(migrationsDir)
+    .filter((f) => f.endsWith('.sql'))
+    .sort();
 
   console.log(`running ${files.length} migration(s)...`);
   for (const file of files) {

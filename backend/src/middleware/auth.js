@@ -24,9 +24,9 @@ export function requireAuth(req, res, next) {
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.user = {
-      id:    payload.sub,
+      id: payload.sub,
       email: payload.email,
-      plan:  payload.plan,
+      plan: payload.plan,
     };
     next();
   } catch (err) {
@@ -49,9 +49,9 @@ export function optionalAuth(req, res, next) {
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.user = {
-      id:    payload.sub,
+      id: payload.sub,
       email: payload.email,
-      plan:  payload.plan,
+      plan: payload.plan,
     };
   } catch {
     // intentionally ignored for optional auth

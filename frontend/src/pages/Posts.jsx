@@ -93,7 +93,7 @@ export default function Posts() {
           <p className="text-slate-400 font-semibold text-lg mb-1">No hay posts</p>
           <p className="text-slate-600 text-sm mb-5">
             {status !== 'all'
-              ? `No tenés posts con estado "${STATUS_FILTERS.find(f => f.value === status)?.label.toLowerCase()}"`
+              ? `No tenés posts con estado "${STATUS_FILTERS.find((f) => f.value === status)?.label.toLowerCase()}"`
               : 'Creá tu primer post ahora'}
           </p>
           <Button onClick={() => navigate('/editor')}>Ir al editor</Button>

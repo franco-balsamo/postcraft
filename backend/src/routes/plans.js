@@ -4,9 +4,18 @@ import { requireAuth } from '../middleware/auth.js';
 import { query } from '../config/db.js';
 import { createError } from '../middleware/errorHandler.js';
 import { getAllPlans, getPlanDetails } from '../services/planService.js';
+import { createRateLimiter } from '../middleware/rateLimiter.js';
 import 'dotenv/config';
 
 export const router = Router();
+
+const plansLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30,
+  message: 'Too many requests, please try again later.',
+});
+
+router.use(plansLimiter);
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',
@@ -16,22 +25,22 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 // Only paid plans appear here – Free is the default and has no Stripe price.
 const PLAN_PRICE_MAP = {
   starter: process.env.STRIPE_PRICE_STARTER,
-  pro:     process.env.STRIPE_PRICE_PRO,
-  agency:  process.env.STRIPE_PRICE_AGENCY,
+  pro: process.env.STRIPE_PRICE_PRO,
+  agency: process.env.STRIPE_PRICE_AGENCY,
 };
 
 // `plan_limits` (see planService.js) is the source of truth for plan
 // definitions. This just reshapes a DB row into the API response shape.
 function toApiShape(row) {
   return {
-    name:          row.plan,
-    label:         row.label,
-    price:         Number(row.price_monthly),
-    currency:      row.currency,
-    interval:      row.billing_interval,
-    monthlyPosts:  row.monthly_posts,
-    networks:      row.networks,
-    scheduling:    row.scheduling,
+    name: row.plan,
+    label: row.label,
+    price: Number(row.price_monthly),
+    currency: row.currency,
+    interval: row.billing_interval,
+    monthlyPosts: row.monthly_posts,
+    networks: row.networks,
+    scheduling: row.scheduling,
     stripePriceId: PLAN_PRICE_MAP[row.plan] || null,
   };
 }
@@ -66,18 +75,18 @@ router.get('/current', requireAuth, async (req, res, next) => {
       throw createError(404, 'User not found');
     }
 
-    const user    = rows[0];
+    const user = rows[0];
     const planDef = await getPlanDetails(user.plan);
-    const limit   = planDef ? planDef.monthly_posts : null; // null = unlimited
+    const limit = planDef ? planDef.monthly_posts : null; // null = unlimited
 
     res.json({
-      plan:              user.plan,
-      price:             planDef ? Number(planDef.price_monthly) : null,
-      postsThisMonth:    user.posts_this_month,
-      monthlyLimit:      limit,
-      scheduling:        planDef ? planDef.scheduling : false,
+      plan: user.plan,
+      price: planDef ? Number(planDef.price_monthly) : null,
+      postsThisMonth: user.posts_this_month,
+      monthlyLimit: limit,
+      scheduling: planDef ? planDef.scheduling : false,
       billingCycleStart: user.billing_cycle_start,
-      stripeCustomerId:  user.stripe_customer_id || null,
+      stripeCustomerId: user.stripe_customer_id || null,
     });
   } catch (err) {
     next(err);
@@ -124,30 +133,30 @@ router.post('/upgrade', requireAuth, async (req, res, next) => {
     let customerId = user.stripe_customer_id;
     if (!customerId) {
       const customer = await stripe.customers.create({
-        email:    user.email,
+        email: user.email,
         metadata: { userId: req.user.id },
       });
       customerId = customer.id;
 
-      await query(
-        'UPDATE users SET stripe_customer_id = $1 WHERE id = $2',
-        [customerId, req.user.id]
-      );
+      await query('UPDATE users SET stripe_customer_id = $1 WHERE id = $2', [
+        customerId,
+        req.user.id,
+      ]);
     }
 
     const session = await stripe.checkout.sessions.create({
-      customer:   customerId,
-      mode:       'subscription',
+      customer: customerId,
+      mode: 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: successUrl || `${process.env.FRONTEND_URL}/settings?upgrade=success`,
-      cancel_url:  cancelUrl  || `${process.env.FRONTEND_URL}/settings?upgrade=cancelled`,
+      cancel_url: cancelUrl || `${process.env.FRONTEND_URL}/settings?upgrade=cancelled`,
       metadata: {
-        userId:  req.user.id,
+        userId: req.user.id,
         newPlan: plan,
       },
       subscription_data: {
         metadata: {
-          userId:  req.user.id,
+          userId: req.user.id,
           newPlan: plan,
         },
       },
@@ -165,10 +174,9 @@ router.post('/upgrade', requireAuth, async (req, res, next) => {
  */
 router.post('/portal', requireAuth, async (req, res, next) => {
   try {
-    const { rows } = await query(
-      'SELECT stripe_customer_id FROM users WHERE id = $1',
-      [req.user.id]
-    );
+    const { rows } = await query('SELECT stripe_customer_id FROM users WHERE id = $1', [
+      req.user.id,
+    ]);
 
     const user = rows[0];
     if (!user?.stripe_customer_id) {
@@ -176,7 +184,7 @@ router.post('/portal', requireAuth, async (req, res, next) => {
     }
 
     const session = await stripe.billingPortal.sessions.create({
-      customer:   user.stripe_customer_id,
+      customer: user.stripe_customer_id,
       return_url: req.body.returnUrl || `${process.env.FRONTEND_URL}/settings`,
     });
 

@@ -30,23 +30,25 @@ export async function schedulePost(postId, scheduledAt) {
     { postId },
     {
       delay,
-      attempts:  3,
+      attempts: 3,
       backoff: {
-        type:  'exponential',
+        type: 'exponential',
         delay: 10_000, // 10s initial back-off
       },
       removeOnComplete: 100, // keep last 100 completed jobs
-      removeOnFail:     50,
+      removeOnFail: 50,
     }
   );
 
   // Persist Bull job ID so we can cancel if needed
-  await query(
-    "UPDATE posts SET bull_job_id = $1, status = 'queued' WHERE id = $2",
-    [String(job.id), postId]
-  );
+  await query("UPDATE posts SET bull_job_id = $1, status = 'queued' WHERE id = $2", [
+    String(job.id),
+    postId,
+  ]);
 
-  console.log(`[scheduleService] Post ${postId} scheduled for ${publishAt.toISOString()} (job #${job.id})`);
+  console.log(
+    `[scheduleService] Post ${postId} scheduled for ${publishAt.toISOString()} (job #${job.id})`
+  );
 
   return job;
 }
@@ -58,10 +60,7 @@ export async function schedulePost(postId, scheduledAt) {
  * @param {string} postId  UUID of the post
  */
 export async function cancelScheduledPost(postId) {
-  const { rows } = await query(
-    'SELECT bull_job_id, status FROM posts WHERE id = $1',
-    [postId]
-  );
+  const { rows } = await query('SELECT bull_job_id, status FROM posts WHERE id = $1', [postId]);
 
   if (!rows[0]) {
     throw createError(404, 'Post not found');
@@ -100,10 +99,10 @@ export async function reschedulePost(postId, newScheduledAt) {
   await cancelScheduledPost(postId);
 
   // Reset the scheduled_at before re-scheduling
-  await query(
-    'UPDATE posts SET scheduled_at = $1 WHERE id = $2',
-    [new Date(newScheduledAt), postId]
-  );
+  await query('UPDATE posts SET scheduled_at = $1 WHERE id = $2', [
+    new Date(newScheduledAt),
+    postId,
+  ]);
 
   return schedulePost(postId, newScheduledAt);
 }

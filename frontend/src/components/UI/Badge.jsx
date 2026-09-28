@@ -27,7 +27,7 @@ const statusMap = {
 }
 
 export default function Badge({ children, variant = 'gray', status, className = '' }) {
-  const resolvedVariant = status ? (statusMap[status] || 'gray') : variant
+  const resolvedVariant = status ? statusMap[status] || 'gray' : variant
   return (
     <span
       className={clsx(

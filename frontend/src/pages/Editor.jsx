@@ -6,8 +6,8 @@ import PublishPanel from '../components/Editor/PublishPanel'
 
 const TABS = [
   { id: 'templates', label: 'Plantillas' },
-  { id: 'canvas',    label: 'Preview' },
-  { id: 'publish',   label: 'Publicar' },
+  { id: 'canvas', label: 'Preview' },
+  { id: 'publish', label: 'Publicar' },
 ]
 
 export default function Editor() {
@@ -16,7 +16,6 @@ export default function Editor() {
 
   return (
     <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-
       {/* ── Mobile tab bar ───────────────────────────────────────────────── */}
       <div className="lg:hidden flex border-b border-white/5 bg-brand-navy/90 backdrop-blur-xl flex-shrink-0">
         {TABS.map((tab) => (
@@ -35,28 +34,34 @@ export default function Editor() {
       </div>
 
       {/* ── Left column: Template selector ──────────────────────────────── */}
-      <div className={`
+      <div
+        className={`
         lg:w-64 lg:flex-shrink-0 lg:border-r lg:border-white/5 lg:overflow-y-auto lg:flex lg:flex-col
         ${activeTab === 'templates' ? 'flex flex-col flex-1 overflow-y-auto' : 'hidden lg:flex'}
-      `}>
+      `}
+      >
         <div className="p-4 lg:p-5">
           <TemplateSelector />
         </div>
       </div>
 
       {/* ── Center column: Canvas preview ───────────────────────────────── */}
-      <div className={`
+      <div
+        className={`
         lg:flex-1 lg:flex lg:flex-col lg:items-center lg:justify-start lg:overflow-y-auto lg:bg-brand-dark/50 lg:p-6
         ${activeTab === 'canvas' ? 'flex flex-col flex-1 overflow-y-auto items-center justify-start bg-brand-dark/50 p-4' : 'hidden lg:flex'}
-      `}>
+      `}
+      >
         <CanvasPreview canvasRef={canvasRef} />
       </div>
 
       {/* ── Right column: Fields + Publish ──────────────────────────────── */}
-      <div className={`
+      <div
+        className={`
         lg:w-72 lg:flex-shrink-0 lg:border-l lg:border-white/5 lg:overflow-y-auto lg:flex lg:flex-col
         ${activeTab === 'publish' ? 'flex flex-col flex-1 overflow-y-auto' : 'hidden lg:flex'}
-      `}>
+      `}
+      >
         <div className="p-4 lg:p-5 border-b border-white/5">
           <FieldsPanel />
         </div>
@@ -64,7 +69,6 @@ export default function Editor() {
           <PublishPanel canvasRef={canvasRef} />
         </div>
       </div>
-
     </div>
   )
 }
