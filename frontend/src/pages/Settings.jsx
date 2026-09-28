@@ -7,13 +7,15 @@ import Button from '../components/UI/Button'
 import Input from '../components/UI/Input'
 import Badge from '../components/UI/Badge'
 
-// Presentation-only hints (color, "popular" badge) keyed by plan name.
+// Presentation-only hint (color) keyed by plan name. No "popular" flag here —
+// that would be a social-proof claim with no real usage data behind it yet;
+// add it back once there's real data on which plan people actually choose.
 // Everything else (price, limits, features) comes from GET /plans — the
 // `plan_limits` DB table is the single source of truth for that data.
 const PLAN_DISPLAY = {
   free:    { color: 'gray' },
   starter: { color: 'cyan' },
-  pro:     { color: 'cyan', popular: true },
+  pro:     { color: 'cyan' },
   agency:  { color: 'purple' },
 }
 
@@ -30,7 +32,7 @@ function Section({ title, desc, children }) {
       <div className="rounded-[1.35rem] bg-brand-surface/80 backdrop-blur-xl overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
         <div className="p-5 border-b border-white/5">
           <h3 className="font-semibold text-white">{title}</h3>
-          {desc && <p className="text-sm text-slate-500 mt-0.5">{desc}</p>}
+          {desc && <p className="text-sm text-slate-400 mt-0.5">{desc}</p>}
         </div>
         <div className="p-5">{children}</div>
       </div>
@@ -52,6 +54,7 @@ export default function Settings() {
   })
   const [profileErrors, setProfileErrors] = useState({})
   const [profileSuccess, setProfileSuccess] = useState(false)
+  const [showDeleteInfo, setShowDeleteInfo] = useState(false)
 
   // Meta connect
   const connectMetaMutation = useMutation({
@@ -119,7 +122,7 @@ export default function Settings() {
     <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6 max-w-3xl mx-auto w-full">
       <div>
         <h2 className="text-xl font-bold text-white">Configuración</h2>
-        <p className="text-slate-500 text-sm mt-0.5">Gestioná tus cuentas y preferencias</p>
+        <p className="text-slate-400 text-sm mt-0.5">Gestioná tus cuentas y preferencias</p>
       </div>
 
       {/* Meta accounts */}
@@ -136,7 +139,7 @@ export default function Settings() {
               </div>
               <div>
                 <p className="text-sm font-medium text-white">Instagram</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-400">
                   {user?.instagramConnected ? `@${user.instagramUsername || 'conectado'}` : 'No conectado'}
                 </p>
               </div>
@@ -154,7 +157,7 @@ export default function Settings() {
               </div>
               <div>
                 <p className="text-sm font-medium text-white">Facebook</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-400">
                   {user?.facebookConnected ? user.facebookPageName || 'conectado' : 'No conectado'}
                 </p>
               </div>
@@ -216,19 +219,11 @@ export default function Settings() {
                     : 'border-white/10 bg-black/10'
                 } transition-all`}
               >
-                {display.popular && (
-                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-                    <span className="px-3 py-0.5 bg-brand-green text-brand-dark text-xs font-bold rounded-full">
-                      Popular
-                    </span>
-                  </div>
-                )}
-
                 <div className="mb-3">
                   <p className={`font-bold text-lg ${colorText}`}>{plan.label}</p>
                   <p className="text-white text-2xl font-bold">
                     ${plan.price}
-                    <span className="text-sm font-normal text-slate-500">
+                    <span className="text-sm font-normal text-slate-400">
                       {plan.interval ? `/${plan.interval === 'month' ? 'mes' : plan.interval}` : ''}
                     </span>
                   </p>
@@ -244,7 +239,7 @@ export default function Settings() {
                 </ul>
 
                 {isCurrent ? (
-                  <div className="text-center text-xs text-slate-500 py-2 border border-white/10 rounded-full">
+                  <div className="text-center text-xs text-slate-400 py-2 border border-white/10 rounded-full">
                     Plan actual
                   </div>
                 ) : plan.name === 'free' ? (
@@ -276,7 +271,7 @@ export default function Settings() {
         {/* Current usage */}
         <div className="mt-4 p-3 rounded-2xl bg-black/20 border border-white/10 flex items-center justify-between">
           <div>
-            <p className="text-xs text-slate-500">Uso mensual</p>
+            <p className="text-xs text-slate-400">Uso mensual</p>
             <p className="text-sm font-medium text-white">
               {user?.postsThisMonth || 0} posts publicados este mes
             </p>
@@ -333,7 +328,7 @@ export default function Settings() {
           </div>
 
           <div className="pt-2 border-t border-white/5">
-            <p className="text-xs text-slate-500 mb-3">Cambiar contraseña (opcional)</p>
+            <p className="text-xs text-slate-400 mb-3">Cambiar contraseña (opcional)</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Contraseña actual"
@@ -365,17 +360,34 @@ export default function Settings() {
 
       {/* Danger zone */}
       <Section title="Zona de peligro">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm font-medium text-red-400">Eliminar cuenta</p>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-400 mt-0.5">
               Esta acción es irreversible y eliminará todos tus datos
             </p>
           </div>
-          <Button variant="danger" size="sm" onClick={() => alert('Contacta soporte para eliminar tu cuenta.')}>
+          <Button variant="danger" size="sm" onClick={() => setShowDeleteInfo(true)}>
             Eliminar cuenta
           </Button>
         </div>
+
+        {showDeleteInfo && (
+          <div className="mt-4 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 space-y-2">
+            <p className="text-sm text-slate-200">
+              Todavía no es un proceso automático — eliminar una cuenta borra tus posts,
+              historial y conexiones de forma permanente, así que por ahora lo hacemos
+              manualmente para confirmar que sos vos antes de borrar nada.
+            </p>
+            <p className="text-sm text-slate-400">Escribinos desde el email de tu cuenta y lo resolvemos.</p>
+            <button
+              onClick={() => setShowDeleteInfo(false)}
+              className="text-xs text-slate-400 hover:text-slate-300 underline underline-offset-2"
+            >
+              Cerrar
+            </button>
+          </div>
+        )}
       </Section>
     </div>
   )
