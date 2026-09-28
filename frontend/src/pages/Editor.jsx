@@ -26,7 +26,7 @@ export default function Editor() {
             className={`flex-1 py-2.5 text-xs font-semibold transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
               activeTab === tab.id
                 ? 'text-brand-green border-b-2 border-brand-green'
-                : 'text-slate-500 hover:text-slate-300'
+                : 'text-slate-400 hover:text-slate-300'
             }`}
           >
             {tab.label}

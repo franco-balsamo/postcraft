@@ -77,7 +77,7 @@ export default function Sidebar() {
             </div>
             <div>
               <p className="font-bold text-white text-sm">PostCraft</p>
-              <p className="text-xs text-slate-500">Social Media Pro</p>
+              <p className="text-xs text-slate-400">Social Media Pro</p>
             </div>
           </div>
         </div>
@@ -110,7 +110,7 @@ export default function Sidebar() {
           <div className="rounded-[1.5rem] bg-white/5 border border-white/10 p-1.5">
             <div className="rounded-[1.1rem] bg-black/20 p-3.5 space-y-2 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500">Plan actual</span>
+                <span className="text-xs text-slate-400">Plan actual</span>
                 <span className="text-xs font-semibold text-brand-green capitalize">
                   {user?.plan || 'free'}
                 </span>
@@ -146,12 +146,12 @@ export default function Sidebar() {
               <p className="text-xs font-medium text-slate-200 truncate">
                 {user?.name || user?.email || 'Usuario'}
               </p>
-              <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+              <p className="text-xs text-slate-400 truncate">{user?.email}</p>
             </div>
             <button
               onClick={handleLogout}
               title="Cerrar sesión"
-              className="text-slate-500 hover:text-red-400 transition-colors duration-300 flex-shrink-0"
+              className="text-slate-400 hover:text-red-400 transition-colors duration-300 flex-shrink-0"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -171,7 +171,7 @@ export default function Sidebar() {
             className={({ isActive }) =>
               clsx(
                 'flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg transition-all min-w-0',
-                isActive ? 'text-brand-green' : 'text-slate-500'
+                isActive ? 'text-brand-green' : 'text-slate-400'
               )
             }
           >
@@ -183,7 +183,7 @@ export default function Sidebar() {
         {/* Logout on mobile */}
         <button
           onClick={handleLogout}
-          className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg text-slate-500 hover:text-red-400 transition-all"
+          className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg text-slate-400 hover:text-red-400 transition-all"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}

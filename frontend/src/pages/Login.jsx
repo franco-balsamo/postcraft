@@ -96,7 +96,7 @@ export default function Login() {
             <div className="rounded-[1.5rem] bg-brand-navy/80 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] p-8 md:p-10">
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-white">Bienvenido de nuevo</h2>
-                <p className="text-slate-500 text-sm mt-1">Ingresá a tu cuenta de PostCraft</p>
+                <p className="text-slate-400 text-sm mt-1">Ingresá a tu cuenta de PostCraft</p>
               </div>
 
               {mutation.isError && (
@@ -134,7 +134,7 @@ export default function Login() {
               </form>
 
               <div className="mt-8 text-center">
-                <p className="text-slate-500 text-sm">
+                <p className="text-slate-400 text-sm">
                   ¿No tenés cuenta?{' '}
                   <Link to="/register" className="text-brand-green hover:text-white transition-colors font-medium">
                     Crear cuenta gratis

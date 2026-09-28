@@ -38,7 +38,7 @@ export default function Posts() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-white">Historial de Posts</h2>
-          <p className="text-slate-500 text-sm mt-0.5">
+          <p className="text-slate-400 text-sm mt-0.5">
             {total > 0 ? `${total} post${total !== 1 ? 's' : ''} en total` : 'Sin posts aún'}
           </p>
         </div>

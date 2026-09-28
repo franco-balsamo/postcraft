@@ -103,7 +103,7 @@ export default function Register() {
             <div className="rounded-[1.5rem] bg-brand-navy/80 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] p-8 md:p-10">
               <div className="mb-6">
                 <h2 className="text-2xl font-bold text-white">Crear cuenta</h2>
-                <p className="text-slate-500 text-sm mt-1">Empezá gratis, sin tarjeta de crédito</p>
+                <p className="text-slate-400 text-sm mt-1">Empezá gratis, sin tarjeta de crédito</p>
               </div>
 
               {freePlan && (
@@ -111,7 +111,7 @@ export default function Register() {
                   <div className="text-brand-green text-lg">✓</div>
                   <div>
                     <p className="text-sm font-medium text-brand-green">Plan Free incluido</p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-400">
                       {freePlan.monthlyPosts} posts/mes · {freePlan.networks.join(' + ')}
                     </p>
                   </div>
@@ -178,7 +178,7 @@ export default function Register() {
               </p>
 
               <div className="mt-6 text-center">
-                <p className="text-slate-500 text-sm">
+                <p className="text-slate-400 text-sm">
                   ¿Ya tenés cuenta?{' '}
                   <Link to="/login" className="text-brand-green hover:text-white transition-colors font-medium">
                     Iniciar sesión

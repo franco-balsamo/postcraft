@@ -23,7 +23,7 @@ function StatCard({ label, value, sub, icon, color = 'green' }) {
           <span className="text-xl">{icon}</span>
         </div>
         <p className={`text-3xl font-bold ${colorClasses[color].split(' ').at(-1)}`}>{value}</p>
-        {sub && <p className="text-xs text-slate-500 mt-1">{sub}</p>}
+        {sub && <p className="text-xs text-slate-400 mt-1">{sub}</p>}
       </div>
     </div>
   )
@@ -63,7 +63,7 @@ export default function Dashboard() {
           <h2 className="text-xl font-bold text-white">
             Hola, {user?.name || user?.email?.split('@')[0]} 👋
           </h2>
-          <p className="text-slate-500 text-sm mt-0.5">
+          <p className="text-slate-400 text-sm mt-0.5">
             Acá está el resumen de tu actividad
           </p>
         </div>
@@ -114,7 +114,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-3">
               <div>
                 <p className="text-sm font-medium text-white">Uso mensual de posts</p>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-slate-400 mt-0.5">
                   {postsUsed} de {planLimit} posts usados este mes
                 </p>
               </div>
@@ -155,7 +155,7 @@ export default function Dashboard() {
         </div>
 
         {postsLoading ? (
-          <div className="p-8 text-center text-slate-500">
+          <div className="p-8 text-center text-slate-400">
             <div className="inline-flex items-center gap-2">
               <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -253,7 +253,7 @@ export default function Dashboard() {
             <p className="font-semibold text-white group-hover:text-brand-green transition-colors duration-300">
               {item.title}
             </p>
-            <p className="text-sm text-slate-500 mt-0.5">{item.desc}</p>
+            <p className="text-sm text-slate-400 mt-0.5">{item.desc}</p>
           </button>
         ))}
       </div>

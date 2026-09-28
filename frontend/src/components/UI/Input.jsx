@@ -37,7 +37,7 @@ export default function Input({
         <p className="text-xs text-red-400">{error}</p>
       )}
       {hint && !error && (
-        <p className="text-xs text-slate-500">{hint}</p>
+        <p className="text-xs text-slate-400">{hint}</p>
       )}
     </div>
   )
@@ -68,7 +68,7 @@ export function Textarea({ label, error, hint, className = '', inputClassName = 
         {...props}
       />
       {error && <p className="text-xs text-red-400">{error}</p>}
-      {hint && !error && <p className="text-xs text-slate-500">{hint}</p>}
+      {hint && !error && <p className="text-xs text-slate-400">{hint}</p>}
     </div>
   )
 }
