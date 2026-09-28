@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { register } from '../api/auth'
@@ -15,10 +15,19 @@ export default function Register() {
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' })
   const [errors, setErrors] = useState({})
 
-  if (token) {
-    navigate('/editor', { replace: true })
-    return null
-  }
+  const mutation = useMutation({
+    mutationFn: register,
+    onSuccess: (data) => {
+      setAuth(data.user, data.token)
+      navigate('/editor')
+    },
+  })
+
+  useEffect(() => {
+    if (token) navigate('/editor', { replace: true })
+  }, [token, navigate])
+
+  if (token) return null
 
   const validate = () => {
     const errs = {}
@@ -33,14 +42,6 @@ export default function Register() {
     if (form.password !== form.confirmPassword) errs.confirmPassword = 'Las contraseñas no coinciden'
     return errs
   }
-
-  const mutation = useMutation({
-    mutationFn: register,
-    onSuccess: (data) => {
-      setAuth(data.user, data.token)
-      navigate('/editor')
-    },
-  })
 
   const handleSubmit = (e) => {
     e.preventDefault()

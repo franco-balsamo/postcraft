@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { login } from '../api/auth'
@@ -11,11 +11,20 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [errors, setErrors] = useState({})
 
+  const mutation = useMutation({
+    mutationFn: login,
+    onSuccess: (data) => {
+      setAuth(data.user, data.token)
+      navigate('/editor')
+    },
+  })
+
   // Redirect if already logged in
-  if (token) {
-    navigate('/editor', { replace: true })
-    return null
-  }
+  useEffect(() => {
+    if (token) navigate('/editor', { replace: true })
+  }, [token, navigate])
+
+  if (token) return null
 
   const validate = () => {
     const errs = {}
@@ -25,14 +34,6 @@ export default function Login() {
     else if (form.password.length < 8) errs.password = 'Mínimo 8 caracteres'
     return errs
   }
-
-  const mutation = useMutation({
-    mutationFn: login,
-    onSuccess: (data) => {
-      setAuth(data.user, data.token)
-      navigate('/editor')
-    },
-  })
 
   const handleSubmit = (e) => {
     e.preventDefault()
